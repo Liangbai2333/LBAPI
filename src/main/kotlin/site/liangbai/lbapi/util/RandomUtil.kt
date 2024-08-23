@@ -17,8 +17,14 @@ fun weightedRandomChoice(weights: List<Int>): Int {
     throw IllegalArgumentException("Weights must be non-empty and non-negative.")
 }
 
-fun checkProbability(probability: Double): Boolean {
-    require(probability in 0.0..1.0) { "Probability must be between 0 and 1" }
+fun checkProbability(probability: Double, percent: Boolean = false): Boolean {
+    var chance = 0.0
+    require(probability in 0.0..100.0) { "Probability must be between 0 and 100" }
+    chance = if (percent) {
+        probability / 100.0
+    } else {
+        probability
+    }
     val randomValue = Random.nextDouble()
     return randomValue < probability
 }
