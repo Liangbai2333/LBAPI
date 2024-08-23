@@ -1,0 +1,15 @@
+package site.liangbai.lbapi
+
+import taboolib.common.platform.Plugin
+import taboolib.common.platform.function.info
+import taboolib.platform.BukkitPlugin
+
+object LBAPI : Plugin() {
+    val plugin by lazy { BukkitPlugin.getInstance() }
+
+    override fun onEnable() {
+        info("&e--------&f[&6LBAPI&f]&e--------")
+        info("&a成功载入LBAPI, 欢迎使用靓白系列插件")
+        info("&e-------------------------------")
+    }
+}
