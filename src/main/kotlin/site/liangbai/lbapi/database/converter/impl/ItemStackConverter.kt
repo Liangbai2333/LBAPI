@@ -6,9 +6,10 @@ import org.bukkit.inventory.ItemStack
 import site.liangbai.lbapi.database.converter.ConverterManager.convertToElement
 import site.liangbai.lbapi.database.converter.ConverterManager.convertToEntity
 import site.liangbai.lbapi.database.converter.IConverter
+import site.liangbai.lbapi.util.toItemTag
+import site.liangbai.lbapi.util.toJsonElement
 import taboolib.common.platform.Platform
 import taboolib.common.platform.PlatformSide
-import taboolib.module.nms.ItemTagSerializer
 import taboolib.module.nms.getItemTag
 import taboolib.module.nms.setItemTag
 
@@ -21,7 +22,7 @@ class ItemStackConverter : IConverter<ItemStack> {
                 .forEach { (k, v) ->
                     it.add(k, v.convertToElement())
                 }
-            it.add("nbt", ItemTagSerializer.serializeData(value.getItemTag()))
+            it.add("nbt", value.getItemTag().toJsonElement())
         }
     }
 
@@ -34,7 +35,7 @@ class ItemStackConverter : IConverter<ItemStack> {
             }
         }
 
-        return ItemStack.deserialize(map).setItemTag(ItemTagSerializer.deserializeData(obj["nbt"]).asCompound())
+        return ItemStack.deserialize(map).setItemTag(obj["nbt"].toItemTag())
     }
 
     private fun translateType(it: JsonElement): Any {

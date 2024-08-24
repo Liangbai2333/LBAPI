@@ -7,6 +7,7 @@ import org.bukkit.inventory.ItemStack
 import site.liangbai.lbapi.database.converter.ConverterManager.convertToElement
 import site.liangbai.lbapi.database.converter.ConverterManager.convertToEntity
 import site.liangbai.lbapi.database.converter.IConverter
+import site.liangbai.lbapi.nms.NMS
 import taboolib.module.ui.buildMenu
 import taboolib.module.ui.type.Chest
 import taboolib.platform.util.isNotAir
@@ -15,8 +16,7 @@ class StorableInventory<T : Inventory> : IConverter<T> {
     override fun convertToElement(value: T): JsonElement {
         return JsonObject()
             .also {
-                it.addProperty("title", value.title)
-
+                it.addProperty("title", NMS.INSTANCE.getTitleName(value))
 
                 val map = mutableMapOf<String, ItemStack>()
                 for (i in 0 until value.size) {

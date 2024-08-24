@@ -1,5 +1,10 @@
 package site.liangbai.lbapi.util
 
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+
+val timeFormatters = mutableMapOf<String, DateTimeFormatter>()
+
 fun Number.secondsToTicks(): Long {
     return (this.toLong() * 20)
 }
@@ -45,4 +50,10 @@ fun Number.minutesToMills(): Long {
 
 fun Number.hoursToMillis(): Long {
     return hoursToMinutes().minutesToMills()
+}
+
+fun formatTime(pattern: String): String {
+    val formatter: DateTimeFormatter = timeFormatters[pattern] ?: DateTimeFormatter.ofPattern(pattern).also { timeFormatters[pattern] = it }
+
+    return formatter.format(LocalDateTime.now())
 }

@@ -3,6 +3,7 @@ package site.liangbai.lbapi.util
 import org.bukkit.entity.Player
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
+import site.liangbai.lbapi.nms.NMS
 
 fun Player.addItemNatural(vararg items: ItemStack?): Boolean {
     val leftover = inventory.addItem(*items)
@@ -52,3 +53,5 @@ fun Inventory.firstWithoutAmount(item: ItemStack?): Int {
 
     return index
 }
+
+fun Inventory.findTitle() = NMS.INSTANCE.getTitleName(this)
