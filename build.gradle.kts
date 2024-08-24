@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     java
+    `maven-publish`
     id("io.izzel.taboolib") version "2.0.11"
     id("org.jetbrains.kotlin.jvm") version "1.8.22"
 }
@@ -14,7 +15,10 @@ taboolib {
         install(EXPANSION_PLAYER_DATABASE)
         install(BUKKIT_ALL, VELOCITY)
     }
-    version { taboolib = "6.1.2-beta10" }
+    version {
+        skipTabooLibRelocate = true
+        taboolib = "6.1.2-beta10"
+    }
 }
 
 repositories {
@@ -56,4 +60,28 @@ tasks.withType<KotlinCompile> {
 configure<JavaPluginConvention> {
     sourceCompatibility = JavaVersion.VERSION_1_8
     targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+tasks {
+    val sourcesJar by creating(Jar::class) {
+        archiveClassifier.set("sources")
+        from(kotlin.sourceSets.main.get().kotlin)
+    }
+
+    publish {
+        dependsOn("build")
+    }
+}
+
+publishing {
+    repositories {
+        maven(url = "file://D:/maven-repo")
+    }
+    publications {
+        create<MavenPublication>("mavenKotlin") {
+            from(components["kotlin"])
+            // 添加额外的artifacts，例如jar文件
+            artifact(tasks["sourcesJar"])
+        }
+    }
 }

@@ -1,6 +1,7 @@
 package site.liangbai.lbapi.database.converter
 
 import com.google.gson.*
+import com.pixelmonmod.pixelmon.api.pokemon.Pokemon
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
 import site.liangbai.lbapi.database.converter.impl.ItemStackConverter
@@ -9,6 +10,7 @@ import site.liangbai.lbapi.database.converter.impl.StorableInventory
 import site.liangbai.lbapi.database.converter.impl.ValueMapConverter
 import site.liangbai.lbapi.database.converter.impl.bean.Bean
 import site.liangbai.lbapi.database.converter.impl.bean.BeanConverter
+import site.liangbai.lbapi.database.converter.impl.forge.PokemonConverter
 import taboolib.library.reflex.Reflex.Companion.invokeConstructor
 
 object ConverterManager {
@@ -25,6 +27,11 @@ object ConverterManager {
         registerConverter(MutableList::class.java, ListConverter::class.java)
         registerConverter(Bean::class.java, BeanConverter::class.java)
         registerConverter(Inventory::class.java, StorableInventory::class.java)
+        if (Class.forName("net.minecraftforge.common.MinecraftForge") != null) {
+            if (Class.forName("com.pixelmonmod.pixelmon.Pixelmon") != null) {
+                registerConverter(Pokemon::class.java, PokemonConverter::class.java)
+            }
+        }
     }
 
     private fun registerConverter(clazz: Class<*>, converter: Class<out IConverter<out Any>>) {

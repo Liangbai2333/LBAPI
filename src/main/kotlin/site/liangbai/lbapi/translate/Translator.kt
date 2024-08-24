@@ -8,4 +8,12 @@ object Translator {
     }
 
     fun getDefaultTransTypes() = TransType.defaultValues()
+
+    fun List<TransType>.applyTranslate(original: String, obj: Any?, player: Player? = null): String {
+        var str = original
+        this.forEach {
+            str = it.func(obj, original, player)
+        }
+        return str
+    }
 }

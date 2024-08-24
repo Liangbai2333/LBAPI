@@ -1,9 +1,11 @@
 package site.liangbai.lbapi.gui.api
 
 import org.bukkit.Material
+import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import site.liangbai.lbapi.translate.TransType
 import site.liangbai.lbapi.translate.Translator
+import site.liangbai.lbapi.translate.Translator.applyTranslate
 import taboolib.library.xseries.XMaterial
 import taboolib.platform.util.ItemBuilder
 import taboolib.platform.util.buildItem
@@ -16,15 +18,17 @@ data class GuiIconInfo(val material: Material, val modelData: Int, val name: Str
         init()
     }
 
-    fun transToItem(useLore: Boolean = true, builder: ItemBuilder.(GuiIconInfo) -> Unit): ItemStack {
+    fun transToItem(useLore: Boolean = true, player: Player? = null, obj: Any? = null, builder: ItemBuilder.(GuiIconInfo) -> Unit): ItemStack {
         val func: ItemBuilder.() -> Unit = {
-            name = this@GuiIconInfo.name
+            name = nameTranslators.applyTranslate(this@GuiIconInfo.name, obj, player)
             if (modelData >= 0) {
                 customModelData = modelData
             }
             if (useLore) {
-                lore.addAll(this@GuiIconInfo.lore)
+                lore.addAll(this@GuiIconInfo.lore.map { loreTranslators.applyTranslate(it, obj, player) })
             }
+
+            colored()
             builder(this@GuiIconInfo)
         }
 

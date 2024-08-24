@@ -1,15 +1,15 @@
 package site.liangbai.lbapi.gui
 
 import org.bukkit.Material
-import org.bukkit.configuration.ConfigurationSection
 import site.liangbai.lbapi.gui.api.GuiIconInfo
 import site.liangbai.lbapi.gui.api.GuiInfo
+import taboolib.library.configuration.ConfigurationSection
 import taboolib.library.xseries.XMaterial
 
 object GuiLoader {
     fun loadGuiFromSection(config: ConfigurationSection): GuiInfo {
         val icons = mutableMapOf<Char, GuiIconInfo>()
-        val layout = config.getStringList("layout")!!
+        val layout = config.getStringList("layout")
         val iconsSection = config.getConfigurationSection("icons")!!
 
         iconsSection.getKeys(false).forEach { key ->

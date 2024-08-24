@@ -18,13 +18,12 @@ fun weightedRandomChoice(weights: List<Int>): Int {
 }
 
 fun checkProbability(probability: Double, percent: Boolean = false): Boolean {
-    var chance = 0.0
     require(probability in 0.0..100.0) { "Probability must be between 0 and 100" }
-    chance = if (percent) {
+    var chance: Double = if (percent) {
         probability / 100.0
     } else {
         probability
     }
     val randomValue = Random.nextDouble()
-    return randomValue < probability
+    return randomValue < chance
 }
