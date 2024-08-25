@@ -1,12 +1,101 @@
 package site.liangbai.lbapi.util
 
-import javax.script.ScriptEngine
-import javax.script.ScriptEngineManager
+import kotlin.math.pow
 
-val engine: ScriptEngine by lazy {
-    ScriptEngineManager().getEngineByName("JavaScript")
+class ExpressionParser(private val input: String) {
+    private var pos = 0
+    private var currentChar: Char? = input.getOrNull(pos)
+
+    fun parse(): Double {
+        return parseExpression()
+    }
+
+    private fun advance() {
+        pos++
+        currentChar = if (pos < input.length) input[pos] else null
+        skipWhitespace()
+    }
+
+    private fun skipWhitespace() {
+        while (currentChar == ' ') {
+            pos++
+            currentChar = if (pos < input.length) input[pos] else null
+        }
+    }
+
+    private fun parseExpression(): Double {
+        var result = parseTerm()
+
+        while (currentChar == '+' || currentChar == '-') {
+            val operator = currentChar
+            advance()
+
+            val term = parseTerm()
+            result = if (operator == '+') result + term else result - term
+        }
+
+        return result
+    }
+
+    private fun parseTerm(): Double {
+        var result = parseFactor()
+
+        while (currentChar == '*' || currentChar == '/' || currentChar == '%') {
+            val operator = currentChar
+            advance()
+            val factor = parseFactor()
+            result = when (operator) {
+                '*' -> result * factor
+                '/' -> result / factor
+                '%' -> result % factor
+                else -> result
+            }
+        }
+
+        return result
+    }
+
+    private fun parseFactor(): Double {
+        // 处理一元运算符的逻辑
+        var sign = 1
+        while (currentChar == '+' || currentChar == '-') {
+            if (currentChar == '-') sign *= -1
+            advance()
+        }
+
+        var result = parseBase()
+
+        // 处理指数运算
+        while (currentChar == '^') {
+            advance()
+            val exponent = parseFactor()
+            result = result.pow(exponent)
+        }
+
+        return result * sign
+    }
+
+    private fun parseBase(): Double {
+        return when (currentChar) {
+            '(' -> {
+                advance() // consume '('
+                val result = parseExpression()
+                advance() // consume ')'
+                result
+            }
+            else -> parseNumber()
+        }
+    }
+
+    private fun parseNumber(): Double {
+        val start = pos
+        while (currentChar?.isDigit() == true || currentChar == '.') {
+            advance()
+        }
+        return input.substring(start, pos).toDouble()
+    }
 }
 
 fun String.calculate(): Double {
-    return engine.eval(this) as Double
+    return ExpressionParser(this).parse()
 }
