@@ -1,11 +1,7 @@
 package site.liangbai.lbapi.config.delegate
 
 import site.liangbai.lbapi.config.ConfigManager
-import site.liangbai.lbapi.config.ConfigManager.transfer
-import site.liangbai.lbapi.gui.api.GuiInfo
-import taboolib.library.configuration.ConfigurationSection
 import kotlin.properties.ReadWriteProperty
-import kotlin.reflect.KClass
 import kotlin.reflect.KProperty
 
 @Suppress("UNCHECKED_CAST")
@@ -15,10 +11,6 @@ class config<T>(private var node: String = "") : ReadWriteProperty<Any?, T?>  {
 
         val n = node.ifEmpty { property.name }
         val get = ConfigManager.getBind(thisRef)[n] ?: return null
-        val cls = (property.returnType.classifier as KClass<*>).java
-        if (!cls.isAssignableFrom(get.javaClass)) {
-            return (get as ConfigurationSection).transfer()
-        }
         return get as T
     }
 
@@ -27,12 +19,6 @@ class config<T>(private var node: String = "") : ReadWriteProperty<Any?, T?>  {
 
         val n = node.ifEmpty { property.name }
         val conf = ConfigManager.getBind(thisRef)
-        val cls = (property.returnType.classifier as KClass<*>).java
-        // TODO
-        if (cls == GuiInfo::class.java) {
-            return
-        } else {
-            conf[n] = value
-        }
+        conf[n] = value
     }
 }

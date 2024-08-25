@@ -43,7 +43,6 @@ dependencies {
     compileOnly("ink.ptms.core:v11600:11600")
     compileOnly("ink.ptms.core:v11300:11300")
     compileOnly(kotlin("stdlib"))
-    compileOnly(kotlin("reflect"))
     compileOnly(fileTree("libs"))
 }
 

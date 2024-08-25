@@ -47,10 +47,10 @@ class TransType(val default: Boolean, val translator: (Any?, String, Player?) ->
                 player = player1
             }
             if (player != null) {
-                original.replace("%player_name%", player!!.name)
-                    .replace("%player_level%", player!!.level.toString())
-                    .replace("%player_health%", player!!.health.toString())
-                    .replace("%player_uuid%", player!!.uniqueId.toString())
+                original.replace("%player_name%", player.name)
+                    .replace("%player_level%", player.level.toString())
+                    .replace("%player_health%", player.health.toString())
+                    .replace("%player_uuid%", player.uniqueId.toString())
             } else {
                 original
             }

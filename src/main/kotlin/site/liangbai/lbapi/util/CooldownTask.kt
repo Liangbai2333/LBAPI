@@ -2,6 +2,7 @@ package site.liangbai.lbapi.util
 
 import taboolib.common.platform.function.submit
 
+// unused
 class CooldownTask {
     private val cache = mutableListOf<String>()
 

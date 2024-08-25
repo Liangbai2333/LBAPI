@@ -2,13 +2,13 @@ package site.liangbai.lbapi.economy.impl
 
 import net.milkbowl.vault.economy.Economy
 import net.milkbowl.vault.economy.EconomyResponse
+import org.bukkit.Bukkit
 import org.bukkit.entity.Player
-import site.liangbai.lbapi.LBAPI.plugin
 import site.liangbai.lbapi.economy.EconomyProvider
 
 class VaultProvider : EconomyProvider<Double> {
     private val economy by lazy {
-        plugin.server.servicesManager.getRegistration(Economy::class.java).provider
+        Bukkit.getServer().servicesManager.getRegistration(Economy::class.java).provider
     }
 
     override fun checkBalance(player: Player, balance: Double): Boolean {
