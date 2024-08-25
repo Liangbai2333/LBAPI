@@ -44,6 +44,7 @@ dependencies {
     compileOnly("ink.ptms.core:v11300:11300")
     compileOnly(kotlin("stdlib"))
     compileOnly(fileTree("libs"))
+    implementation(kotlin("reflect"))
 }
 
 tasks.withType<JavaCompile> {
