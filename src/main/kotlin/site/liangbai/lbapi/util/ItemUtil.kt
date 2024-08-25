@@ -4,6 +4,7 @@ import org.bukkit.entity.Player
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
 import site.liangbai.lbapi.nms.NMS
+import taboolib.module.chat.colored
 
 fun Player.addItemNatural(vararg items: ItemStack?): Boolean {
     val leftover = inventory.addItem(*items)
@@ -55,3 +56,11 @@ fun Inventory.firstWithoutAmount(item: ItemStack?): Int {
 }
 
 fun Inventory.findTitle() = NMS.INSTANCE.getTitleName(this)
+
+fun ItemStack.hasLore(lore: String, colored: Boolean = true): Boolean {
+    return this.itemMeta?.lore?.joinToString("")?.contains(if (colored) lore.colored() else lore) ?: false
+}
+
+fun ItemStack.hasName(name: String, colored: Boolean = true): Boolean {
+    return itemMeta?.displayName?.contains(if (colored) name.colored() else name) ?: false
+}

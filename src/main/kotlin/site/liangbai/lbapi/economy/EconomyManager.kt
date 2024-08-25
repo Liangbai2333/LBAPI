@@ -30,6 +30,7 @@ object EconomyManager {
         }
         register(economyOf("item"), ItemStackProvider())
         register(economyOf("multi_item"), MultiItemStackProvider())
+        register(economyOf("contains_item"), ContainsItemStackProvider())
     }
 
     fun register(economy: Economy, provider: EconomyProvider<*>) {

@@ -10,7 +10,8 @@ enum class EconomyType(private val type: String) {
     PLAYER_POINTS("player_points"),
     VAULT("vault"),
     ITEM("item"),
-    MULTI_ITEM("multi_item");
+    MULTI_ITEM("multi_item"),
+    CONTAINS_ITEM("contains_item");
 
     fun instance(nyE: String? = null, placeholder: String? = null): String {
         return if (this == NYE) {
