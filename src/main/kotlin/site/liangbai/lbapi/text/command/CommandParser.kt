@@ -10,7 +10,7 @@ import taboolib.module.chat.colored
 
 object CommandParser {
     fun execute(text: String, player: Player, obj: Any?, defaultTranslators: Boolean = true, vararg translators: TransType): Boolean {
-        val type = text.substringBefore(":").trim()
+        val type = text.substringBefore(":").trim().lowercase()
         val trans = mutableListOf<TransType>()
         if (defaultTranslators) {
             trans.addAll(Translator.getDefaultTransTypes())
