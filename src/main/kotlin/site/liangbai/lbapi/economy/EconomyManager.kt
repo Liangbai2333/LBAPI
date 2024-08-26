@@ -4,8 +4,6 @@ import com.mc9y.nyeconomy.Main
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import site.liangbai.lbapi.economy.impl.*
-import taboolib.common.LifeCycle
-import taboolib.common.platform.Awake
 
 object EconomyManager {
     private val economyMap = mutableMapOf<EconomyProvider<*>, Economy>()
@@ -17,7 +15,6 @@ object EconomyManager {
     private val channelWithPlayerNameMap = mutableMapOf<String, MutableList<EconomyProvider<*>>>()
     private val channelWithPlayerNameValueMap = mutableMapOf<String, MutableMap<EconomyProvider<*>, Any>>()
 
-    @Awake(LifeCycle.ACTIVE)
     fun initialize() {
         if (Bukkit.getPluginManager().getPlugin("Vault") != null) {
             register(economyOf("vault"), VaultProvider())
@@ -63,6 +60,7 @@ object EconomyManager {
         channelValueMap = mutableMapOf()
 
         registerChannel(*economyWithValues.map { it.first }.toTypedArray())
+        println(economyNameMap.keys)
 
         for (economyWithValue in economyWithValues) {
             if (economyNameMap.containsKey(economyWithValue.first)) {
