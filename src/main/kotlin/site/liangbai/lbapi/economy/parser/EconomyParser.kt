@@ -5,7 +5,7 @@ import site.liangbai.lbapi.economy.parser.impl.NyEParser
 import site.liangbai.lbapi.economy.parser.impl.PlayerPointsParser
 import site.liangbai.lbapi.economy.parser.impl.VaultParser
 
-object ParserManager {
+object EconomyParser {
     private val parsers = mutableMapOf<String, Parser<*>>()
     private val parserSupports = mutableMapOf<Parser<*>, MutableList<String>>()
 

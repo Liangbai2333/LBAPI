@@ -1,10 +1,10 @@
-package site.liangbai.lbapi.database.converter.impl.bean
+package site.liangbai.lbapi.storage.converter.impl.bean
 
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
-import site.liangbai.lbapi.database.converter.ConverterManager.convertToElement
-import site.liangbai.lbapi.database.converter.ConverterManager.convertToEntity
-import site.liangbai.lbapi.database.converter.IConverter
+import site.liangbai.lbapi.storage.converter.ConverterManager.convertToElement
+import site.liangbai.lbapi.storage.converter.ConverterManager.convertToEntity
+import site.liangbai.lbapi.storage.converter.IConverter
 import taboolib.library.reflex.Reflex.Companion.setProperty
 import taboolib.library.reflex.Reflex.Companion.unsafeInstance
 import taboolib.library.reflex.ReflexClass

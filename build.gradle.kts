@@ -26,10 +26,10 @@ repositories {
     maven("https://raw.githubusercontent.com/Duckfox/maven-repository/master/")
     maven("https://jitpack.io")
     maven("https://oss.sonatype.org/content/repositories/snapshots")
-    maven("https://papermc.io/repo/repository/maven-public/")
     maven("https://repo.xenondevs.xyz/releases")
     maven("https://repo.extendedclip.com/content/repositories/placeholderapi/")
     maven("https://repo.codemc.io/repository/maven-public/")
+    maven("https://repo.papermc.io/repository/maven-public/")
 }
 
 dependencies {
@@ -42,6 +42,7 @@ dependencies {
     compileOnly("ink.ptms.core:v11200:11200")
     compileOnly("ink.ptms.core:v11600:11600")
     compileOnly("ink.ptms.core:v11300:11300")
+    compileOnly("net.md-5:bungeecord-api:1.20-R0.1-SNAPSHOT")
     compileOnly(kotlin("stdlib"))
     compileOnly(fileTree("libs"))
 }
