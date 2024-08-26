@@ -3,16 +3,16 @@ package site.liangbai.lbapi.gui.api
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
-import site.liangbai.lbapi.translate.TransType
-import site.liangbai.lbapi.translate.Translator
-import site.liangbai.lbapi.translate.Translator.applyTranslate
+import site.liangbai.lbapi.text.translate.TransType
+import site.liangbai.lbapi.text.translate.Translator
+import site.liangbai.lbapi.text.translate.Translator.applyTranslate
 import taboolib.library.xseries.XMaterial
 import taboolib.platform.util.ItemBuilder
 import taboolib.platform.util.buildItem
 
-data class GuiIconInfo(val material: Material, val modelData: Int, val name: String, val lore: List<String>, val xMaterial: XMaterial? = null) {
-    private val nameTranslators = mutableListOf<TransType>()
-    private val loreTranslators = mutableListOf<TransType>()
+data class GuiIconInfo(var material: Material, var modelData: Int, var name: String, var lore: List<String>, var damage: Int, var amount: Int, var xMaterial: XMaterial? = null, var customItem: ItemStack? = null) {
+    private val nameTranslators = mutableSetOf<TransType>()
+    private val loreTranslators = mutableSetOf<TransType>()
 
     init {
         init()
@@ -24,6 +24,12 @@ data class GuiIconInfo(val material: Material, val modelData: Int, val name: Str
             if (modelData >= 0) {
                 customModelData = modelData
             }
+            if (damage > 0) {
+                this.damage = this@GuiIconInfo.damage
+            }
+            if (amount > 1) {
+                this.amount = this@GuiIconInfo.amount
+            }
             if (useLore) {
                 lore.addAll(this@GuiIconInfo.lore.map { loreTranslators.applyTranslate(it, obj, player) })
             }
@@ -32,8 +38,14 @@ data class GuiIconInfo(val material: Material, val modelData: Int, val name: Str
             builder(this@GuiIconInfo)
         }
 
+        if (customItem != null) {
+            return buildItem(customItem!!) {
+                func(this)
+            }
+        }
+
         if (xMaterial != null) {
-            return buildItem(xMaterial) {
+            return buildItem(xMaterial!!) {
                 func(this)
             }
         }

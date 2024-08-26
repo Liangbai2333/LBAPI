@@ -1,6 +1,8 @@
 package site.liangbai.lbapi.nms
 
+import net.minecraft.item.ItemStack
 import net.minecraft.server.v1_16_R1.NBTTagCompound
+import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack
 import org.bukkit.craftbukkit.v1_16_R1.inventory.CraftInventory
 import org.bukkit.inventory.Inventory
 import taboolib.library.reflex.ReflexClass
@@ -24,5 +26,13 @@ class NMSImpl : NMS() {
 
     override fun getNBTClass(): Class<*> {
         return NBTTagCompound::class.java
+    }
+
+    override fun toBukkitItem(original: ItemStack): org.bukkit.inventory.ItemStack {
+        return CraftItemStack.asBukkitCopy(original)
+    }
+
+    override fun toNMSItem(original: org.bukkit.inventory.ItemStack): ItemStack {
+        return CraftItemStack.asNMSCopy(original)
     }
 }

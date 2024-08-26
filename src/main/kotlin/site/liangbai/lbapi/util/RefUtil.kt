@@ -2,6 +2,7 @@ package site.liangbai.lbapi.util
 
 import taboolib.library.reflex.ClassField
 import taboolib.library.reflex.ClassMethod
+import taboolib.library.reflex.Reflex.Companion.getProperty
 import taboolib.library.reflex.ReflexClass
 
 /**
@@ -51,4 +52,8 @@ private fun <T> Any.getLocalPropertySilently(name: String, isStatic: Boolean = f
     } else {
         ReflexClass.of(javaClass).getFieldSilently(name)?.get(this) as T?
     }
+}
+
+fun <T> Class<T>.getObjectInstance(): T? {
+    return this.getPropertySilently("INSTANCE", isStatic = true)
 }

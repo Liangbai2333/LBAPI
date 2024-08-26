@@ -1,4 +1,4 @@
-package site.liangbai.lbapi.translate
+package site.liangbai.lbapi.text.translate
 
 import com.pixelmonmod.pixelmon.api.pokemon.Pokemon
 import com.pixelmonmod.pixelmon.entities.pixelmon.stats.StatsType
@@ -18,10 +18,10 @@ class TransType(val default: Boolean, val translator: (Any?, String, Player?) ->
                 val ivs = pokemon.iVs
                 val evs = pokemon.eVs
 
-                original.replace("%shiny%", if (pokemon.isShiny) "是" else "否")
-                    .replace("%gender%", pokemon.gender.localizedName)
-                    .replace("%ability%", pokemon.ability.localizedName)
-                    .replace("%nature%", pokemon.nature.localizedName)
+                original.replace("%pokemon_shiny%", if (pokemon.isShiny) "是" else "否")
+                    .replace("%pokemon_gender%", pokemon.gender.localizedName)
+                    .replace("%pokemon_ability%", pokemon.ability.localizedName)
+                    .replace("%pokemon_nature%", pokemon.nature.localizedName)
                     .replace("%ivs_hp%", ivs.getStat(StatsType.HP).toString())
                     .replace("%ivs_defence%", ivs.getStat(StatsType.Defence).toString())
                     .replace("%ivs_attack%", ivs.getStat(StatsType.Attack).toString())
@@ -35,8 +35,7 @@ class TransType(val default: Boolean, val translator: (Any?, String, Player?) ->
                     .replace("%evs_special_defence%", evs.getStat(StatsType.SpecialDefence).toString())
                     .replace("%evs_special_attack%", evs.getStat(StatsType.SpecialAttack).toString())
                     .replace("%pokemon_name%", pokemon.localizedName)
-                    .replace("%level%", pokemon.level.toString())
-                    .replace("%name%", pokemon.localizedName)
+                    .replace("%pokemon_level%", pokemon.level.toString())
             }
         }
         val PLAYER_INFO = TransType(true) { player1, original, player2 ->

@@ -1,4 +1,4 @@
-package site.liangbai.lbapi.translate
+package site.liangbai.lbapi.text.translate
 
 import org.bukkit.entity.Player
 
@@ -9,7 +9,7 @@ object Translator {
 
     fun getDefaultTransTypes() = TransType.defaultValues()
 
-    fun List<TransType>.applyTranslate(original: String, obj: Any?, player: Player? = null): String {
+    fun Collection<TransType>.applyTranslate(original: String, obj: Any?, player: Player? = null): String {
         var str = original
         this.forEach {
             str = it.translator(obj, original, player)

@@ -1,12 +1,13 @@
 package site.liangbai.lbapi.gui
 
 import org.bukkit.Material
+import site.liangbai.lbapi.config.ConfigMapper
 import site.liangbai.lbapi.gui.api.GuiIconInfo
 import site.liangbai.lbapi.gui.api.GuiInfo
 import taboolib.library.configuration.ConfigurationSection
 import taboolib.library.xseries.XMaterial
 
-object GuiLoader {
+object GuiLoader : ConfigMapper<GuiInfo> {
     fun loadGuiFromSection(config: ConfigurationSection): GuiInfo {
         val icons = mutableMapOf<Char, GuiIconInfo>()
         val layout = config.getStringList("layout")
@@ -31,10 +32,17 @@ object GuiLoader {
                 iconCharSection.getInt("model-data", -1),
                 iconCharSection.getString("name")!!,
                 iconCharSection.getStringList("lore"),
-                xMaterial
+                iconCharSection.getInt("damage", 0),
+                iconCharSection.getInt("amount", 1),
+                xMaterial,
+                null
             )
         }
 
         return GuiInfo(layout, icons)
+    }
+
+    override fun map(original: ConfigurationSection): GuiInfo {
+        return loadGuiFromSection(original)
     }
 }
