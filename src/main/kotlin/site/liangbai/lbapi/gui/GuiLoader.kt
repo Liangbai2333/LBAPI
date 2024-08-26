@@ -39,7 +39,7 @@ object GuiLoader : ConfigMapper<GuiInfo> {
             )
         }
 
-        return GuiInfo(layout, icons)
+        return GuiInfo(config.getString("title"), layout, icons)
     }
 
     override fun map(original: ConfigurationSection): GuiInfo {

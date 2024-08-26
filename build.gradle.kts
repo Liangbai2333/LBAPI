@@ -9,6 +9,7 @@ plugins {
 }
 
 taboolib {
+    subproject = true
     env {
         // 安装模块
         install(UNIVERSAL, DATABASE, NMS_UTIL, UI, CHAT)

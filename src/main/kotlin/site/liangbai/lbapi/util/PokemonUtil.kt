@@ -7,7 +7,7 @@ import site.liangbai.lbapi.gui.api.GuiIconInfo
 import site.liangbai.lbapi.nms.NMS
 import site.liangbai.lbapi.text.translate.TransType
 
-fun GuiIconInfo.withPokemonTranslator(pokemon: Pokemon): GuiIconInfo {
+fun GuiIconInfo.withPokemonTranslator(): GuiIconInfo {
     return apply { withTranslator(TransType.PIXELMON) }
 }
 

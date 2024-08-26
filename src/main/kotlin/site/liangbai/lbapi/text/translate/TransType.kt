@@ -6,10 +6,6 @@ import me.clip.placeholderapi.PlaceholderAPI
 import org.bukkit.entity.Player
 
 class TransType(val default: Boolean, val translator: (Any?, String, Player?) -> String) {
-    init {
-        registeredTranslators.add(this)
-    }
-
     companion object {
         val PIXELMON = TransType(false) { pokemon, original, _ ->
             if (pokemon !is Pokemon) {
@@ -77,6 +73,14 @@ class TransType(val default: Boolean, val translator: (Any?, String, Player?) ->
 
         fun getCustomTranslator(identity: String) = customTranslators[identity]
 
-        fun defaultValues() = registeredTranslators.filter { it.default }.toList()
+        fun defaultValues(): List<TransType> {
+            if (registeredTranslators.isEmpty()) {
+                registeredTranslators.add(PIXELMON)
+                registeredTranslators.add(PLACEHOLDER)
+                registeredTranslators.add(PLAYER_INFO)
+            }
+
+            return registeredTranslators.filter { it.default }.toList()
+        }
     }
 }
