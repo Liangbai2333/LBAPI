@@ -16,7 +16,6 @@ taboolib {
         install(BUKKIT_ALL, VELOCITY)
     }
     version {
-        skipTabooLibRelocate = true
         taboolib = "6.1.2-beta10"
     }
 }
@@ -62,26 +61,17 @@ configure<JavaPluginConvention> {
     targetCompatibility = JavaVersion.VERSION_1_8
 }
 
-tasks {
-    val sourcesJar by creating(Jar::class) {
-        archiveClassifier.set("sources")
-        from(kotlin.sourceSets.main.get().kotlin)
-    }
-
-    publish {
-        dependsOn("build")
-    }
-}
-
 publishing {
     repositories {
-        maven(url = "file://D:/maven-repo")
+        mavenLocal()
     }
     publications {
-        create<MavenPublication>("mavenKotlin") {
-            from(components["kotlin"])
-            // 添加额外的artifacts，例如jar文件
-            artifact(tasks["sourcesJar"])
+        create<MavenPublication>("maven") {
+            artifactId = "lbapi"
+            groupId = "site.liangbai"
+            version = project.version.toString()
+
+            artifact(File("build/libs/${rootProject.name}-${project.version}.jar"))
         }
     }
 }
