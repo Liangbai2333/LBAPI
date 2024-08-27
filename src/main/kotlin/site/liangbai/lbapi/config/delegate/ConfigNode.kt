@@ -1,3 +1,5 @@
+@file:JvmName("ConfigNodeKt")
+
 package site.liangbai.lbapi.config.delegate
 
 import site.liangbai.lbapi.config.ConfigManager
@@ -8,10 +10,11 @@ import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
 @Suppress("UNCHECKED_CAST")
-class NullableConfigNode<T>(private var node: String = "", private val mapper: ConfigMapper<T>? = null) : ReadWriteProperty<Any?, T?>  {
+class ConfigNode<T>(private var node: String = "", private val mapper: ConfigMapper<T>? = null) :
+    ReadWriteProperty<Any?, T> {
     private var cached: T? = null
 
-    override fun getValue(thisRef: Any?, property: KProperty<*>): T? {
+    override fun getValue(thisRef: Any?, property: KProperty<*>): T {
         if (thisRef == null) throw IllegalArgumentException("bind access")
 
         if (cached != null) {
@@ -19,24 +22,22 @@ class NullableConfigNode<T>(private var node: String = "", private val mapper: C
                 cached = null
                 ConfigManager.flushCache.remove(thisRef)
             } else {
-                return cached
+                return cached!!
             }
         }
         val n = node.ifEmpty { property.name }
         val conf = ConfigManager.getBind(thisRef)
-        val get = conf[n] ?: return null
-
-        val returnValue: T?
-        returnValue = if (mapper != null) {
+        val get = conf[n]!!
+        val returnValue: T? = if (mapper != null) {
             mapper.map(get as ConfigurationSection)
         } else {
             get as T
         }
 
-        return returnValue.also { cached = it }
+        return returnValue.also { cached = it }!!
     }
 
-    override fun setValue(thisRef: Any?, property: KProperty<*>, value: T?) {
+    override fun setValue(thisRef: Any?, property: KProperty<*>, value: T) {
         if (thisRef == null) throw IllegalArgumentException("bind access")
 
         val n = node.ifEmpty { property.name }
@@ -45,6 +46,6 @@ class NullableConfigNode<T>(private var node: String = "", private val mapper: C
     }
 }
 
-fun <T> configNullable(mapperClass: Class<out ConfigMapper<T>>? = null, node: String = ""): NullableConfigNode<T> {
-    return NullableConfigNode(node, mapperClass?.getObjectInstance())
+fun <T> config(mapperClass: Class<out ConfigMapper<T>>? = null, node: String = ""): ConfigNode<T> {
+    return ConfigNode(node, mapperClass?.getObjectInstance())
 }
