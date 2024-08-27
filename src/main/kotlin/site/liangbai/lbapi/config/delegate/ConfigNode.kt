@@ -8,7 +8,7 @@ import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
 @Suppress("UNCHECKED_CAST")
-class ConfigNode<T>(private var node: String = "", private val mapper: ConfigMapper<T>? = null) : ReadWriteProperty<Any?, T?>  {
+class NullableConfigNode<T>(private var node: String = "", private val mapper: ConfigMapper<T>? = null) : ReadWriteProperty<Any?, T?>  {
     private var cached: T? = null
 
     override fun getValue(thisRef: Any?, property: KProperty<*>): T? {
@@ -45,6 +45,6 @@ class ConfigNode<T>(private var node: String = "", private val mapper: ConfigMap
     }
 }
 
-fun <T> config(mapperClass: Class<out ConfigMapper<T>>? = null, node: String = ""): ConfigNode<T> {
-    return ConfigNode(node, mapperClass?.getObjectInstance())
+fun <T> configNullable(mapperClass: Class<out ConfigMapper<T>>? = null, node: String = ""): NullableConfigNode<T> {
+    return NullableConfigNode(node, mapperClass?.getObjectInstance())
 }

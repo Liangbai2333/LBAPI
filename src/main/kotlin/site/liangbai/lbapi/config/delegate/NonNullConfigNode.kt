@@ -8,7 +8,7 @@ import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
 @Suppress("UNCHECKED_CAST")
-class NonNullConfigNode<T>(private var node: String = "", private val mapper: ConfigMapper<T>? = null) :
+class ConfigNode<T>(private var node: String = "", private val mapper: ConfigMapper<T>? = null) :
     ReadWriteProperty<Any?, T> {
     private var cached: T? = null
 
@@ -44,6 +44,6 @@ class NonNullConfigNode<T>(private var node: String = "", private val mapper: Co
     }
 }
 
-fun <T> configNonNull(mapperClass: Class<out ConfigMapper<T>>? = null, node: String = ""): NonNullConfigNode<T> {
-    return NonNullConfigNode(node, mapperClass?.getObjectInstance())
+fun <T> config(mapperClass: Class<out ConfigMapper<T>>? = null, node: String = ""): ConfigNode<T> {
+    return ConfigNode(node, mapperClass?.getObjectInstance())
 }

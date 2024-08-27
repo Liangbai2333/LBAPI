@@ -11,14 +11,13 @@ object EconomyParser {
 
     init {
         registerParser(VaultParser(), "vault", "money")
-        registerParser(PlayerPointsParser(), "player_points", "pp")
+        registerParser(PlayerPointsParser(), "player_points", "pp", "points")
         registerParser(NyEParser(), "nye")
         registerParser(PlayerPointsParser(), "placeholder", "papi")
         registerParser(ContainsItemParser(), "contains_item", "item")
     }
 
     @Suppress("UNCHECKED_CAST")
-    // TODO NYE PAPI
     fun <T> parseEconomy(economy: String): Pair<String, T> {
         val type = economy.substringBefore(":")
         val data = economy.substringAfter(":")
