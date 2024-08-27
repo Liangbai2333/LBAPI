@@ -44,6 +44,6 @@ class NullableConfigNode<A, B>(private var node: String = "", private val mapper
     }
 }
 
-fun <A, B> configNullable(mapperClass: Class<out ConfigMapper<A, B>>? = null, node: String = ""): NullableConfigNode<A, B> {
+fun <B> configNullable(mapperClass: Class<out ConfigMapper<*, B>>? = null, node: String = ""): NullableConfigNode<*, B> {
     return NullableConfigNode(node, mapperClass?.getObjectInstance())
 }

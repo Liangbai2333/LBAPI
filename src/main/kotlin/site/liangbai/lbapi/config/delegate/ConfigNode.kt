@@ -45,6 +45,6 @@ class ConfigNode<A, B>(private var node: String = "", private val mapper: Config
     }
 }
 
-fun <A, B> config(mapperClass: Class<out ConfigMapper<A, B>>? = null, node: String = ""): ConfigNode<A, B> {
+fun <B> config(mapperClass: Class<out ConfigMapper<*, B>>? = null, node: String = ""): ConfigNode<*, B> {
     return ConfigNode(node, mapperClass?.getObjectInstance())
 }
