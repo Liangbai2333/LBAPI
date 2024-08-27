@@ -6,7 +6,7 @@ import site.liangbai.lbapi.gui.api.GuiIconInfo
 import taboolib.library.configuration.ConfigurationSection
 import taboolib.library.xseries.XMaterial
 
-object GuiIconLoader : ConfigMapper<GuiIconInfo> {
+object GuiIconLoader : ConfigMapper<ConfigurationSection, GuiIconInfo> {
     fun loadItemIconFromConfSec(conf: ConfigurationSection): GuiIconInfo {
         val material = conf.getString("material")!!
         var xMaterial: XMaterial? = null

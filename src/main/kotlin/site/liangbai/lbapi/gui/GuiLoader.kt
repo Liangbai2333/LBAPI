@@ -5,7 +5,7 @@ import site.liangbai.lbapi.gui.api.GuiIconInfo
 import site.liangbai.lbapi.gui.api.GuiInfo
 import taboolib.library.configuration.ConfigurationSection
 
-object GuiLoader : ConfigMapper<GuiInfo> {
+object GuiLoader : ConfigMapper<ConfigurationSection, GuiInfo> {
     fun loadGuiFromSection(config: ConfigurationSection): GuiInfo {
         val icons = mutableMapOf<Char, GuiIconInfo>()
         val layout = config.getStringList("layout")
