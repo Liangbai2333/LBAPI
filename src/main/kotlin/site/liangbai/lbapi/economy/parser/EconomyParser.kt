@@ -1,9 +1,6 @@
 package site.liangbai.lbapi.economy.parser
 
-import site.liangbai.lbapi.economy.parser.impl.ContainsItemParser
-import site.liangbai.lbapi.economy.parser.impl.NyEParser
-import site.liangbai.lbapi.economy.parser.impl.PlayerPointsParser
-import site.liangbai.lbapi.economy.parser.impl.VaultParser
+import site.liangbai.lbapi.economy.parser.impl.*
 
 object EconomyParser {
     private val parsers = mutableMapOf<String, Parser<*>>()
@@ -28,8 +25,9 @@ object EconomyParser {
 
         if (type.equals("nye", ignoreCase = true)) {
             original = "${original}_${(value as Pair<String, Double>).first}"
+            return original to value.second as T
         } else if (type.equals("placeholder", ignoreCase = true)) {
-            original = "${original}_${(value as Pair<String, Triple<String, String, String>>).first}"
+            original = "${original}_${(value as PlaceholderInfo).name}"
         }
 
         return original to value as T

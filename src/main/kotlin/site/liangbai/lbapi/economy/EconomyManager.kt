@@ -8,12 +8,9 @@ import site.liangbai.lbapi.economy.impl.*
 object EconomyManager {
     private val economyMap = mutableMapOf<EconomyProvider<*>, Economy>()
     private val economyNameMap = mutableMapOf<String, EconomyProvider<*>>()
-    private var channelMap = mutableListOf<EconomyProvider<*>>()
+    private var channelMap = mutableMapOf<String, MutableList<EconomyProvider<*>>>()
 
-    private var channelValueMap = mutableMapOf<EconomyProvider<*>, Any>()
-
-    private val channelWithPlayerNameMap = mutableMapOf<String, MutableList<EconomyProvider<*>>>()
-    private val channelWithPlayerNameValueMap = mutableMapOf<String, MutableMap<EconomyProvider<*>, Any>>()
+    private var channelValueMap = mutableMapOf<String, MutableMap<EconomyProvider<*>, Any>>()
 
     fun initialize() {
         if (Bukkit.getPluginManager().getPlugin("Vault") != null) {
@@ -46,62 +43,34 @@ object EconomyManager {
         return economyNameMap[name] as? EconomyProvider<T> ?: throw NullPointerException("Economy not found")
     }
 
-    fun registerChannel(vararg economies: String) {
-        channelMap = mutableListOf()
+    fun registerChannel(channel: String, vararg economies: String) {
+        channelMap[channel] = mutableListOf()
 
         for (economy in economies) {
             if (economyNameMap.containsKey(economy)) {
-                channelMap.add(getEconomyByName<Any>(economy))
+                channelMap[channel]!!.add(getEconomyByName<Any>(economy))
             }
         }
     }
 
-    fun registerChannelWithDefaultValues(vararg economyWithValues: Pair<String, Any>) {
-        channelValueMap = mutableMapOf()
+    fun registerChannelWithDefaultValues(channel: String, vararg economyWithValues: Pair<String, Any>) {
+        channelValueMap[channel] = mutableMapOf()
 
-        registerChannel(*economyWithValues.map { it.first }.toTypedArray())
-        println(economyNameMap.keys)
+        registerChannel(channel, *economyWithValues.map { it.first }.toTypedArray())
 
         for (economyWithValue in economyWithValues) {
             if (economyNameMap.containsKey(economyWithValue.first)) {
-                channelValueMap[getEconomyByName<Any>(economyWithValue.first)] = economyWithValue.second
-            }
-        }
-    }
-
-    fun registerPlayerChannel(player: String, vararg economies: String) {
-        if (player !in channelWithPlayerNameMap) {
-            channelWithPlayerNameMap[player] = mutableListOf()
-        }
-        val playerUniqueIdMap = channelWithPlayerNameMap[player]!!
-
-        for (economy in economies) {
-            if (economyNameMap.containsKey(economy)) {
-                playerUniqueIdMap.add(getEconomyByName<Any>(economy))
-            }
-        }
-    }
-
-    fun registerPlayerChannelWithDefaultValues(player: String, vararg economyWithValues: Pair<String, Any>) {
-        if (player !in channelWithPlayerNameValueMap) {
-            channelWithPlayerNameValueMap[player] = mutableMapOf()
-        }
-        val playerUniqueIdValueMap = channelWithPlayerNameValueMap[player]!!
-        registerPlayerChannel(player, *economyWithValues.map { it.first }.toTypedArray())
-
-        for (economyWithValue in economyWithValues) {
-            if (economyNameMap.containsKey(economyWithValue.first)) {
-                playerUniqueIdValueMap[getEconomyByName<Any>(economyWithValue.first)] = economyWithValue.second
+                channelValueMap[channel]!![getEconomyByName<Any>(economyWithValue.first)] = economyWithValue.second
             }
         }
     }
 
     // Return not enough
     @Suppress("UNCHECKED_CAST")
-    fun <T> checkWithChannel(checker: (EconomyProvider<T>) -> Boolean): Economy? {
+    fun <T> checkWithChannel(channel: String, checker: (EconomyProvider<T>) -> Boolean): Economy? {
         var economy: Economy? = null
         var b = true
-        channelMap.forEach {
+        channelMap[channel]!!.forEach {
             if (!b) return@forEach
             if (!checker(it as EconomyProvider<T>)) {
                 economy = economyMap[it]
@@ -112,60 +81,22 @@ object EconomyManager {
         return economy
     }
 
-    fun checkChannelDefaultValues(player: Player): Economy? {
-        return checkWithChannel {
-            it.checkBalance(player, channelValueMap[it]!!)
+    fun checkChannelDefaultValues(channel: String, player: Player): Economy? {
+        return checkWithChannel(channel) {
+            it.checkBalance(player, channelValueMap[channel]!![it]!!)
         }
     }
 
     @Suppress("UNCHECKED_CAST")
-    fun <T> checkWithPlayerChannel(player: String, checker: (EconomyProvider<T>) -> Boolean): Economy? {
-        var economy: Economy? = null
-        var b = true
-        channelWithPlayerNameMap[player]?.forEach {
-            if (!b) return@forEach
-            if (!checker(it as EconomyProvider<T>)) {
-                economy = economyMap[it]
-                b = false
-            }
-        }
-
-        return economy
-    }
-
-    fun checkPlayerChannelDefaultValues(player: Player): Economy? {
-        val values = channelWithPlayerNameValueMap[player.name]!!
-
-        return checkWithPlayerChannel(player.name) {
-            it.checkBalance(player, values[it]!!)
-        }
-    }
-
-    @Suppress("UNCHECKED_CAST")
-    fun <T> withChannel(func: (EconomyProvider<T>) -> Unit) {
-        channelMap.forEach {
+    fun <T> withChannel(channel: String, func: (EconomyProvider<T>) -> Unit) {
+        channelMap[channel]!!.forEach {
             func(it as EconomyProvider<T>)
         }
     }
 
-    fun withdrawDefaultValues(player: Player) {
-        withChannel {
-            it.withdraw(player, channelValueMap[it]!!)
-        }
-    }
-
-    @Suppress("UNCHECKED_CAST")
-    fun <T> withPlayerChannel(player: String, func: (EconomyProvider<T>) -> Unit) {
-        channelWithPlayerNameMap[player]?.forEach {
-            func(it as EconomyProvider<T>)
-        }
-    }
-
-    fun withdrawPlayerDefaultValues(player: Player) {
-        val values = channelWithPlayerNameValueMap[player.name]!!
-
-        withPlayerChannel(player.name) {
-            it.withdraw(player, values[it]!!)
+    fun withdrawDefaultValues(channel: String, player: Player) {
+        withChannel(channel) {
+            it.withdraw(player, channelValueMap[channel]!![it]!!)
         }
     }
 }
