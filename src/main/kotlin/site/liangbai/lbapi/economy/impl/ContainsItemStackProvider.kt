@@ -48,9 +48,9 @@ class ContainsItemStackProvider : EconomyProvider<ItemInfo> {
         val map = mutableMapOf<Int, ItemStack>()
 
         for (i in 0 until inventory.size) {
-            var b1 = false
-            var b2 = false
-            var b3 = false
+            var b1: Boolean
+            var b2: Boolean
+            var b3: Boolean
             val item = inventory.getItem(i)
             b1 = if (info.name.isEmpty()) {
                 true

@@ -19,7 +19,7 @@ fun weightedRandomChoice(weights: List<Int>): Int {
 
 fun checkProbability(probability: Double, percent: Boolean = false): Boolean {
     require(probability in 0.0..100.0) { "Probability must be between 0 and 100" }
-    var chance: Double = if (percent) {
+    val chance: Double = if (percent) {
         probability / 100.0
     } else {
         probability

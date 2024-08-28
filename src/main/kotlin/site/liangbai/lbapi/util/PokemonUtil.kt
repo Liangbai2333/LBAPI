@@ -27,9 +27,9 @@ fun Pokemon.setLevelOriginal(level: Int) {
     this.experience = 0
 }
 
-fun EVStore.getPercentage(decimalPlaces: Int) {
+fun EVStore.getPercentage(decimalPlaces: Int): Double {
     val percentage = total.toDouble() / 510.0 * 100.0
-    floor(percentage * 10.0.pow(decimalPlaces.toDouble())) / 10.0.pow(decimalPlaces.toDouble());
+    return floor(percentage * 10.0.pow(decimalPlaces.toDouble())) / 10.0.pow(decimalPlaces.toDouble());
 }
 
 fun EVStore.getPercentageString(decimalPlaces: Int): String {
