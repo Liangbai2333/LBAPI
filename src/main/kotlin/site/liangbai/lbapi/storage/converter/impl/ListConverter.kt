@@ -11,10 +11,10 @@ import taboolib.common.platform.Platform
 import taboolib.common.platform.PlatformSide
 
 @PlatformSide(Platform.BUKKIT)
-class ListConverter<T> : IConverter<MutableList<T>> {
+class ListConverter<T> : IConverter<List<T>> {
     private val parser = JsonParser()
 
-    override fun convertToElement(value: MutableList<T>): JsonElement {
+    override fun convertToElement(value: List<T>): JsonElement {
         val jsonArray = JsonArray()
 
         value.forEach {
@@ -37,7 +37,7 @@ class ListConverter<T> : IConverter<MutableList<T>> {
     }
 
     @Suppress("UNCHECKED_CAST")
-    override fun convertFromString(data: JsonElement): MutableList<T> {
+    override fun convertFromString(data: JsonElement): List<T> {
         val jsonArray = data.asJsonArray
         val list = mutableListOf<T>()
 
