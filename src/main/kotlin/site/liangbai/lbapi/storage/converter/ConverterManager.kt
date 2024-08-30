@@ -9,6 +9,7 @@ import site.liangbai.lbapi.storage.converter.impl.*
 import site.liangbai.lbapi.storage.converter.impl.bean.Bean
 import site.liangbai.lbapi.storage.converter.impl.bean.BeanConverter
 import site.liangbai.lbapi.storage.converter.impl.forge.PokemonConverter
+import site.liangbai.lbapi.util.findClassOrNull
 import taboolib.common.platform.Platform
 import taboolib.common.platform.function.runningPlatform
 import taboolib.library.reflex.Reflex.Companion.invokeConstructor
@@ -30,8 +31,8 @@ object ConverterManager {
         registerConverter(Map::class.java, ValueMapConverter::class.java)
         registerConverter(MutableList::class.java, ListConverter::class.java)
         registerConverter(Bean::class.java, BeanConverter::class.java)
-        if (Class.forName("net.minecraftforge.common.MinecraftForge") != null) {
-            if (Class.forName("com.pixelmonmod.pixelmon.Pixelmon") != null) {
+        if (findClassOrNull("net.minecraftforge.common.MinecraftForge") != null) {
+            if (findClassOrNull("com.pixelmonmod.pixelmon.Pixelmon") != null) {
                 registerConverter(Pokemon::class.java, PokemonConverter::class.java)
             }
         }
