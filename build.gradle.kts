@@ -36,7 +36,7 @@ dependencies {
     compileOnly("org.catmc:catserversrg:11c12cd")
     compileOnly("com.pixelmonmod:pixelmon:8.4.3")
     compileOnly("com.google.guava:guava:31.0.1-jre")
-    compileOnly("com.google.code.gson:gson:2.9.1")
+    compileOnly("com.google.code.gson:gson:2.8.0")
     compileOnly("com.github.MilkBowl:VaultAPI:1.7.1")
     compileOnly("me.clip:placeholderapi:2.11.3")
     compileOnly("ink.ptms.core:v11200:11200")

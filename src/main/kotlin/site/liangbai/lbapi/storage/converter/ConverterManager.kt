@@ -2,12 +2,10 @@ package site.liangbai.lbapi.storage.converter
 
 import com.google.gson.*
 import com.pixelmonmod.pixelmon.api.pokemon.Pokemon
+import org.bukkit.Location
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
-import site.liangbai.lbapi.storage.converter.impl.ItemStackConverter
-import site.liangbai.lbapi.storage.converter.impl.ListConverter
-import site.liangbai.lbapi.storage.converter.impl.StorableInventory
-import site.liangbai.lbapi.storage.converter.impl.ValueMapConverter
+import site.liangbai.lbapi.storage.converter.impl.*
 import site.liangbai.lbapi.storage.converter.impl.bean.Bean
 import site.liangbai.lbapi.storage.converter.impl.bean.BeanConverter
 import site.liangbai.lbapi.storage.converter.impl.forge.PokemonConverter
@@ -27,6 +25,7 @@ object ConverterManager {
         if (runningPlatform == Platform.BUKKIT) {
             registerConverter(ItemStack::class.java, ItemStackConverter::class.java)
             registerConverter(Inventory::class.java, StorableInventory::class.java)
+            registerConverter(Location::class.java, LocationConverter::class.java)
         }
         registerConverter(Map::class.java, ValueMapConverter::class.java)
         registerConverter(MutableList::class.java, ListConverter::class.java)
@@ -38,7 +37,7 @@ object ConverterManager {
         }
     }
 
-    private fun registerConverter(clazz: Class<*>, converter: Class<out IConverter<out Any>>) {
+    fun registerConverter(clazz: Class<*>, converter: Class<out IConverter<out Any>>) {
         converters[clazz] = converter
         nameConverters[converter.simpleName] = converter
     }

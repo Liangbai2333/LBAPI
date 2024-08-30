@@ -2,9 +2,10 @@ package site.liangbai.lbapi.util
 
 import kotlin.random.Random
 
-fun <T> weightedRandomChoice(weightsMap: Map<Int, T>): T {
-    val weightsList = weightsMap.keys.toList()
-    return weightsMap[weightsList[weightedRandomChoice(weightsList)]]!!
+fun <T> weightedRandomChoice(weightsMap: List<Pair<Int, T>>): T {
+    val weightsList = weightsMap.map { it.first }
+
+    return weightsMap[weightedRandomChoice(weightsList)].second
 }
 
 fun weightedRandomChoice(weights: List<Int>): Int {
