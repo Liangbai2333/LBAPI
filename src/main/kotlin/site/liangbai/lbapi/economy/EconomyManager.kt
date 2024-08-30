@@ -65,6 +65,11 @@ object EconomyManager {
         }
     }
 
+    fun unregisterChannel(channel: String) {
+        channelMap.remove(channel)
+        channelValueMap.remove(channel)
+    }
+
     // Return not enough
     @Suppress("UNCHECKED_CAST")
     fun <T> checkWithChannel(channel: String, checker: (EconomyProvider<T>) -> Boolean): Economy? {

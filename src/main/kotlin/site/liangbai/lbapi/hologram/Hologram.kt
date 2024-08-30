@@ -92,7 +92,7 @@ class Hologram(
         return components[index] as TextHologram
     }
 
-    private fun visible(player: Player, visible: Boolean) {
+    fun visible(player: Player, visible: Boolean) {
         if (visible) {
             if (viewers.add(player.name)) components.forEach { it.spawn(player) }
         } else {
@@ -100,11 +100,11 @@ class Hologram(
         }
     }
 
-    private fun visibleByDistance(player: Player): Boolean {
+    fun visibleByDistance(player: Player): Boolean {
         return player.world == position.world && position.distance(player.location) <= viewDistance
     }
 
-    private fun visibleByCondition(player: Player): Boolean {
+    fun visibleByCondition(player: Player): Boolean {
         return if (visibleByCondition.containsKey(player.name)) {
             visibleByCondition[player.name] ?: true
         } else {
@@ -113,7 +113,7 @@ class Hologram(
         }
     }
 
-    private fun refreshCondition(player: Player) {
+    fun refreshCondition(player: Player) {
         viewCondition?.eval(player)?.thenApply {
             visibleByCondition[player.name] = it
         }
@@ -124,10 +124,7 @@ class Hologram(
     }
 
     fun destroy(player: Player) {
-        viewers.remove(player.name)
-        components.forEach {
-            it.viewers.remove(player.name)
-        }
+        visible(player, false)
     }
 
     fun destroy() {

@@ -6,6 +6,7 @@ import site.liangbai.lbapi.economy.EconomyProvider
 import site.liangbai.lbapi.economy.parser.impl.ItemInfo
 import site.liangbai.lbapi.util.hasLore
 import site.liangbai.lbapi.util.hasName
+import taboolib.platform.util.isAir
 
 class ContainsItemStackProvider : EconomyProvider<ItemInfo> {
     override fun checkBalance(player: Player, balance: ItemInfo): Boolean {
@@ -52,6 +53,9 @@ class ContainsItemStackProvider : EconomyProvider<ItemInfo> {
             var b2: Boolean
             var b3: Boolean
             val item = inventory.getItem(i)
+            if (item == null || item.isAir()) {
+                continue
+            }
             b1 = if (info.name.isEmpty()) {
                 true
             } else {
