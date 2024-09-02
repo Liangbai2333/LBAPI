@@ -6,6 +6,7 @@ import site.liangbai.lbapi.serverbridge.proxy.impl.BukkitProxy
 import site.liangbai.lbapi.serverbridge.proxy.impl.BungeeProxy
 import taboolib.common.platform.Platform
 import taboolib.common.platform.function.runningPlatform
+import kotlin.reflect.KClass
 
 object BridgeRegistry {
     private val registeredPacketClass = mutableMapOf<Class<*>, MutableList<Processor>>()
@@ -24,12 +25,12 @@ object BridgeRegistry {
     }
 
     @Suppress("UNCHECKED_CAST")
-    fun <T : PluginPacket> registerPacket(packetClass: Class<T>, processor: (T) -> Unit) {
-        if (packetClass !in registeredPacketClass) {
-            registeredPacketClass[packetClass] = mutableListOf()
+    fun <T : PluginPacket> registerPacket(packetClass: KClass<T>, processor: (T) -> Unit) {
+        if (packetClass.java !in registeredPacketClass) {
+            registeredPacketClass[packetClass.java] = mutableListOf()
         }
 
-        registeredPacketClass[packetClass]!!.add(Processor(processor as (PluginPacket) -> Unit))
+        registeredPacketClass[packetClass.java]!!.add(Processor(processor as (PluginPacket) -> Unit))
     }
 
     fun getProcessors(packetType: Class<*>): List<Processor> {

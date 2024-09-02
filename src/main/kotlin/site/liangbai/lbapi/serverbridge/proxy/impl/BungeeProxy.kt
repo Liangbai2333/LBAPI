@@ -41,41 +41,47 @@ class BungeeProxy : PlatformProxy {
         server<ProxyServer>().registerChannel(outgoing)
 
         registerBungeeListener(PluginMessageEvent::class.java) {
-            if (it.tag == incoming) {
-                val packet = it.data.transToPacket<PluginPacket>()
-                if (packet is RegisterPacket) {
-                    registeredServer.add(packet.registeredUniqueId)
-                    return@registerBungeeListener
-                }
-                if (packet is PlayerEmptyPacket) {
-                    playerEmptyServer.add(packet.uniqueId)
-                    return@registerBungeeListener
-                }
-                if (packet is RecoveryPacket) {
-                    playerEmptyServer.remove(packet.uniqueId)
-                    return@registerBungeeListener
-                }
-                if (packet is PostProcessPacket) {
-                    postCache.add(packet.uniqueId)
-                    if (postCache.size >= (registeredServer.size - playerEmptyServer.size)) {
-                        registeredServer.forEach {
-                            sendPacket(AllowNextPacket().apply { uniqueId = it })
-                        }
-                        postCache.clear()
-                        isAllowedToSend = true
-                        canSend.signal()
+            try {
+                lock.lock()
+                if (it.tag == incoming) {
+                    val packet = it.data.transToPacket<PluginPacket>()
+                    if (packet is RegisterPacket) {
+                        registeredServer.add(packet.registeredUniqueId)
+                        return@registerBungeeListener
                     }
-                    return@registerBungeeListener
+                    if (packet is PlayerEmptyPacket) {
+                        playerEmptyServer.add(packet.uniqueId)
+                        return@registerBungeeListener
+                    }
+                    if (packet is RecoveryPacket) {
+                        playerEmptyServer.remove(packet.uniqueId)
+                        return@registerBungeeListener
+                    }
+                    if (packet is PostProcessPacket) {
+                        postCache.add(packet.uniqueId)
+
+                        if (postCache.size >= (registeredServer.size - playerEmptyServer.size)) {
+                            registeredServer.forEach {
+                                sendPacket(AllowNextPacket().apply { uniqueId = it })
+                            }
+                            postCache.clear()
+                            isAllowedToSend = true
+                            canSend.signal()
+                        }
+                        return@registerBungeeListener
+                    }
+                    processPacket(packet)
                 }
-                processPacket(packet)
+            } finally {
+                lock.unlock()
             }
         }
     }
 
     fun processPacket(packet: PluginPacket) {
-        lock.lock()
-        try {
-            threadPool.submit {
+        threadPool.submit {
+            try {
+                lock.lock()
                 while (!isAllowedToSend) {
                     canSend.await()
                 }
@@ -85,9 +91,9 @@ class BungeeProxy : PlatformProxy {
                 }
 
                 isAllowedToSend = false
+            } finally {
+                lock.unlock()
             }
-        }finally {
-            lock.unlock()
         }
     }
 

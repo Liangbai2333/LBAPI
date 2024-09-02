@@ -1,5 +1,6 @@
 package site.liangbai.lbapi.serverbridge.proxy.impl
 
+import kotlinx.coroutines.delay
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.event.player.PlayerJoinEvent
@@ -19,6 +20,7 @@ import taboolib.common.platform.Platform
 import taboolib.common.platform.PlatformSide
 import taboolib.common.platform.event.EventPriority
 import taboolib.common.platform.function.registerBukkitListener
+import taboolib.common.platform.function.submit
 import taboolib.platform.BukkitPlugin
 import java.util.*
 import java.util.concurrent.Executors
@@ -52,7 +54,9 @@ class BukkitProxy : PlatformProxy, PluginMessageListener {
         registered = true
         registerBukkitListener(PlayerJoinEvent::class.java, EventPriority.HIGHEST) {
             if (registered && !initialized) {
-                sendPrivatePacket(it.player, RegisterPacket(uniqueId))
+                submit(delay = 20) {
+                    sendPrivatePacket(it.player, RegisterPacket(uniqueId))
+                }
                 initialized = true
             } else if (waitedRecovered) {
                 sendPrivatePacket(it.player, RecoveryPacket())
@@ -72,9 +76,9 @@ class BukkitProxy : PlatformProxy, PluginMessageListener {
             return
         }
 
-        lock.lock()
-        try {
-            threadPool.submit {
+        threadPool.submit {
+            try {
+                lock.lock()
                 while (!isAllowedToSend) {
                     canSend.await()
                 }
@@ -83,10 +87,9 @@ class BukkitProxy : PlatformProxy, PluginMessageListener {
                 Bukkit.getOnlinePlayers().firstOrNull()?.sendPluginMessage(BukkitPlugin.getInstance(), outgoing, packet.transToByteArray())
 
                 isAllowedToSend = false
+            } finally {
+                lock.unlock()
             }
-
-        } finally {
-            lock.unlock()
         }
     }
 
