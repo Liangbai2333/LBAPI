@@ -1,11 +1,15 @@
 package site.liangbai.lbapi.serverbridge.proxy.impl
 
 import net.md_5.bungee.api.ProxyServer
+import net.md_5.bungee.api.config.ServerInfo
+import net.md_5.bungee.api.connection.Connection
+import net.md_5.bungee.api.connection.ProxiedPlayer
+import net.md_5.bungee.api.connection.Server
 import net.md_5.bungee.api.event.PluginMessageEvent
+import net.md_5.bungee.api.event.ServerConnectedEvent
+import net.md_5.bungee.api.event.ServerDisconnectEvent
 import site.liangbai.lbapi.serverbridge.packet.PluginPacket
-import site.liangbai.lbapi.serverbridge.packet.request.PlayerEmptyPacket
 import site.liangbai.lbapi.serverbridge.packet.request.PostProcessPacket
-import site.liangbai.lbapi.serverbridge.packet.request.RecoveryPacket
 import site.liangbai.lbapi.serverbridge.packet.request.RegisterPacket
 import site.liangbai.lbapi.serverbridge.packet.server.AllowNextPacket
 import site.liangbai.lbapi.serverbridge.proxy.PlatformProxy
@@ -27,9 +31,9 @@ class BungeeProxy : PlatformProxy {
     private val canSend = lock.newCondition()
     private var isAllowedToSend = true
 
-    private val registeredServer = mutableListOf<String>()
+    private val registeredServerName = mutableListOf<String>()
     private val postCache = mutableListOf<String>()
-    private val playerEmptyServer = mutableListOf<String>()
+    private var emptyServerCount = 0
 
     private val threadPool = Executors.newSingleThreadExecutor()
 
@@ -46,24 +50,16 @@ class BungeeProxy : PlatformProxy {
                 if (it.tag == incoming) {
                     val packet = it.data.transToPacket<PluginPacket>()
                     if (packet is RegisterPacket) {
-                        registeredServer.add(packet.registeredUniqueId)
-                        return@registerBungeeListener
-                    }
-                    if (packet is PlayerEmptyPacket) {
-                        playerEmptyServer.add(packet.uniqueId)
-                        return@registerBungeeListener
-                    }
-                    if (packet is RecoveryPacket) {
-                        playerEmptyServer.remove(packet.uniqueId)
+                        val sender = it.sender.toServerInfo().name
+                        registeredServerName.add(sender)
                         return@registerBungeeListener
                     }
                     if (packet is PostProcessPacket) {
-                        postCache.add(packet.uniqueId)
+                        val sender = it.sender.toServerInfo().name
+                        postCache.add(sender)
 
-                        if (postCache.size >= (registeredServer.size - playerEmptyServer.size)) {
-                            registeredServer.forEach {
-                                sendPacket(AllowNextPacket().apply { uniqueId = it })
-                            }
+                        if (postCache.size >= (registeredServerName.size - emptyServerCount)) {
+                            sendPacket(AllowNextPacket())
                             postCache.clear()
                             isAllowedToSend = true
                             canSend.signal()
@@ -76,6 +72,20 @@ class BungeeProxy : PlatformProxy {
                 lock.unlock()
             }
         }
+
+        registerBungeeListener(ServerDisconnectEvent::class.java) {
+            val serverInfo = it.target
+            if (serverInfo.name in registeredServerName && serverInfo.players.isEmpty()) {
+                emptyServerCount += 1
+            }
+        }
+
+        registerBungeeListener(ServerConnectedEvent::class.java) {
+            val serverInfo = it.server.info
+            if (serverInfo.name in registeredServerName && serverInfo.players.isEmpty()) {
+                emptyServerCount -= 1
+            }
+        }
     }
 
     fun processPacket(packet: PluginPacket) {
@@ -86,9 +96,7 @@ class BungeeProxy : PlatformProxy {
                     canSend.await()
                 }
 
-                registeredServer.forEach {
-                    sendPacket(packet.apply { uniqueId = it })
-                }
+                sendPacket(packet)
 
                 isAllowedToSend = false
             } finally {
@@ -98,8 +106,16 @@ class BungeeProxy : PlatformProxy {
     }
 
     override fun sendPacket(packet: PluginPacket) {
-        server<ProxyServer>().servers.forEach { (_, u) ->
-            u.sendData(outgoing, packet.transToByteArray())
+        registeredServerName.forEach {
+            server<ProxyServer>().getServerInfo(it).sendData(outgoing, packet.transToByteArray())
+        }
+    }
+
+    private fun Connection.toServerInfo(): ServerInfo {
+        return when (this) {
+            is Server -> this.info
+            is ProxiedPlayer -> this.server.info
+            else -> throw IllegalArgumentException()
         }
     }
 }

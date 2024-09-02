@@ -8,9 +8,7 @@ import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.plugin.messaging.PluginMessageListener
 import site.liangbai.lbapi.serverbridge.BridgeRegistry
 import site.liangbai.lbapi.serverbridge.packet.PluginPacket
-import site.liangbai.lbapi.serverbridge.packet.request.PlayerEmptyPacket
 import site.liangbai.lbapi.serverbridge.packet.request.PostProcessPacket
-import site.liangbai.lbapi.serverbridge.packet.request.RecoveryPacket
 import site.liangbai.lbapi.serverbridge.packet.request.RegisterPacket
 import site.liangbai.lbapi.serverbridge.packet.server.AllowNextPacket
 import site.liangbai.lbapi.serverbridge.proxy.PlatformProxy
@@ -38,8 +36,6 @@ class BukkitProxy : PlatformProxy, PluginMessageListener {
     private var initialized = false
     private var registered = false
 
-    private var waitedRecovered = false
-
     private val uniqueId by lazy { UUID.randomUUID().toString() }
 
     private val threadPool = Executors.newSingleThreadExecutor()
@@ -55,18 +51,9 @@ class BukkitProxy : PlatformProxy, PluginMessageListener {
         registerBukkitListener(PlayerJoinEvent::class.java, EventPriority.HIGHEST) {
             if (registered && !initialized) {
                 submit(delay = 20) {
-                    sendPrivatePacket(it.player, RegisterPacket(uniqueId))
+                    sendPrivatePacket(it.player, RegisterPacket())
                 }
                 initialized = true
-            } else if (waitedRecovered) {
-                sendPrivatePacket(it.player, RecoveryPacket())
-                waitedRecovered = false
-            }
-        }
-        registerBukkitListener(PlayerQuitEvent::class.java, EventPriority.HIGHEST) {
-            if (Bukkit.getOnlinePlayers().size <= 1) {
-                sendPrivatePacket(it.player, PlayerEmptyPacket())
-                waitedRecovered = true
             }
         }
     }
@@ -83,7 +70,6 @@ class BukkitProxy : PlatformProxy, PluginMessageListener {
                     canSend.await()
                 }
 
-                packet.uniqueId = uniqueId
                 Bukkit.getOnlinePlayers().firstOrNull()?.sendPluginMessage(BukkitPlugin.getInstance(), outgoing, packet.transToByteArray())
 
                 isAllowedToSend = false
@@ -95,7 +81,6 @@ class BukkitProxy : PlatformProxy, PluginMessageListener {
 
     // 不需要服务器返回的包
     private fun sendPrivatePacket(player: Player, packet: PluginPacket) {
-        packet.uniqueId = uniqueId
         player.sendPluginMessage(BukkitPlugin.getInstance(), outgoing, packet.transToByteArray())
     }
 
@@ -105,13 +90,10 @@ class BukkitProxy : PlatformProxy, PluginMessageListener {
             try {
                 val packet = data.transToPacket<PluginPacket>()
 
-                if (packet.uniqueId != uniqueId) {
-                    return
-                }
-
                 if (packet is AllowNextPacket) {
                     isAllowedToSend = true
                     canSend.signal()
+                    return
                 }
 
                 val cls = packet.javaClass
