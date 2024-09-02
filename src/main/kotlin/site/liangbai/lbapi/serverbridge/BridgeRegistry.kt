@@ -10,7 +10,7 @@ import taboolib.common.platform.function.runningPlatform
 object BridgeRegistry {
     private val registeredPacketClass = mutableMapOf<Class<*>, MutableList<Processor>>()
 
-    private lateinit var proxy: PlatformProxy
+    lateinit var proxy: PlatformProxy
 
     fun initialize(identity: String) {
         proxy = when (runningPlatform) {
@@ -23,12 +23,13 @@ object BridgeRegistry {
         proxy.registerChannel(identity)
     }
 
-    fun <T : PluginPacket> registerPacket(packetClass: Class<T>, processor: (PluginPacket) -> Unit) {
+    @Suppress("UNCHECKED_CAST")
+    fun <T : PluginPacket> registerPacket(packetClass: Class<T>, processor: (T) -> Unit) {
         if (packetClass !in registeredPacketClass) {
             registeredPacketClass[packetClass] = mutableListOf()
         }
 
-        registeredPacketClass[packetClass]!!.add(Processor(processor))
+        registeredPacketClass[packetClass]!!.add(Processor(processor as (PluginPacket) -> Unit))
     }
 
     fun getProcessors(packetType: Class<*>): List<Processor> {

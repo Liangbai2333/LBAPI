@@ -104,4 +104,12 @@ object EconomyManager {
             it.withdraw(player, channelValueMap[channel]!![it]!!)
         }
     }
+
+    fun getChannelMap(channel: String): MutableList<EconomyProvider<*>>? {
+        return channelMap[channel]
+    }
+
+    fun getChannelMapWithDefaultValues(channel: String): MutableMap<EconomyProvider<*>, Any>? {
+        return channelValueMap[channel]
+    }
 }

@@ -1,8 +1,8 @@
-package site.liangbai.lbapi.gui
+package site.liangbai.lbapi.config.mapper.gui
 
 import site.liangbai.lbapi.config.ConfigMapper
-import site.liangbai.lbapi.gui.api.GuiIconInfo
-import site.liangbai.lbapi.gui.api.GuiInfo
+import site.liangbai.lbapi.config.mapper.gui.api.GuiIconInfo
+import site.liangbai.lbapi.config.mapper.gui.api.GuiInfo
 import taboolib.library.configuration.ConfigurationSection
 
 object GuiLoader : ConfigMapper<ConfigurationSection, GuiInfo> {

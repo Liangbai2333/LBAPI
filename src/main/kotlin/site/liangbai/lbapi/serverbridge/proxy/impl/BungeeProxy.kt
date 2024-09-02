@@ -15,6 +15,7 @@ import taboolib.common.platform.Platform
 import taboolib.common.platform.PlatformSide
 import taboolib.common.platform.function.registerBungeeListener
 import taboolib.common.platform.function.server
+import java.util.concurrent.Executors
 import java.util.concurrent.locks.ReentrantLock
 
 @PlatformSide(Platform.BUNGEE)
@@ -29,6 +30,8 @@ class BungeeProxy : PlatformProxy {
     private val registeredServer = mutableListOf<String>()
     private val postCache = mutableListOf<String>()
     private val playerEmptyServer = mutableListOf<String>()
+
+    private val threadPool = Executors.newSingleThreadExecutor()
 
     override fun registerChannel(identity: String) {
         incoming = "$identity:proxy"
@@ -72,7 +75,7 @@ class BungeeProxy : PlatformProxy {
     fun processPacket(packet: PluginPacket) {
         lock.lock()
         try {
-            Thread {
+            threadPool.submit {
                 while (!isAllowedToSend) {
                     canSend.await()
                 }

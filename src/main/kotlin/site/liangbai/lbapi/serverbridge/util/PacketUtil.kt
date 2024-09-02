@@ -1,5 +1,6 @@
 package site.liangbai.lbapi.serverbridge.util
 
+import site.liangbai.lbapi.serverbridge.BridgeRegistry
 import site.liangbai.lbapi.serverbridge.packet.PluginPacket
 import site.liangbai.lbapi.storage.converter.ConverterManager.convertToEntity
 import site.liangbai.lbapi.storage.converter.ConverterManager.convertToString
@@ -11,4 +12,8 @@ fun PluginPacket.transToByteArray(): ByteArray {
 
 fun <T : PluginPacket> ByteArray.transToPacket(): T {
     return String(this, Charsets.UTF_8).convertToEntity()
+}
+
+fun PluginPacket.send() {
+    BridgeRegistry.proxy.sendPacket(this)
 }

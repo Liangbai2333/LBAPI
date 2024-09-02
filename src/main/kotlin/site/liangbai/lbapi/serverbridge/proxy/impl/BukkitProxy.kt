@@ -21,6 +21,7 @@ import taboolib.common.platform.event.EventPriority
 import taboolib.common.platform.function.registerBukkitListener
 import taboolib.platform.BukkitPlugin
 import java.util.*
+import java.util.concurrent.Executors
 import java.util.concurrent.locks.ReentrantLock
 
 @PlatformSide(Platform.BUKKIT)
@@ -38,6 +39,8 @@ class BukkitProxy : PlatformProxy, PluginMessageListener {
     private var waitedRecovered = false
 
     private val uniqueId by lazy { UUID.randomUUID().toString() }
+
+    private val threadPool = Executors.newSingleThreadExecutor()
 
     override fun registerChannel(identity: String) {
         incoming = "$identity:server"
@@ -71,7 +74,7 @@ class BukkitProxy : PlatformProxy, PluginMessageListener {
 
         lock.lock()
         try {
-            Thread {
+            threadPool.submit {
                 while (!isAllowedToSend) {
                     canSend.await()
                 }
@@ -81,6 +84,7 @@ class BukkitProxy : PlatformProxy, PluginMessageListener {
 
                 isAllowedToSend = false
             }
+
         } finally {
             lock.unlock()
         }
