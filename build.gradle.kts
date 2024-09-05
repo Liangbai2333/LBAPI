@@ -43,6 +43,7 @@ dependencies {
     compileOnly("ink.ptms.core:v11600:11600")
     compileOnly("ink.ptms.core:v11300:11300")
     compileOnly("net.md-5:bungeecord-api:1.20-R0.1-SNAPSHOT")
+    compileOnly("com.velocitypowered:velocity-api:3.1.1")
     compileOnly(kotlin("stdlib"))
     compileOnly(fileTree("libs"))
 }

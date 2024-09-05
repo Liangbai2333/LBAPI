@@ -4,6 +4,7 @@ import site.liangbai.lbapi.serverbridge.packet.PluginPacket
 import site.liangbai.lbapi.serverbridge.proxy.PlatformProxy
 import site.liangbai.lbapi.serverbridge.proxy.impl.BukkitProxy
 import site.liangbai.lbapi.serverbridge.proxy.impl.BungeeProxy
+import site.liangbai.lbapi.serverbridge.proxy.impl.VelocityProxy
 import taboolib.common.platform.Platform
 import taboolib.common.platform.function.runningPlatform
 import kotlin.reflect.KClass
@@ -17,7 +18,7 @@ object BridgeRegistry {
         proxy = when (runningPlatform) {
             Platform.BUKKIT -> BukkitProxy()
             Platform.BUNGEE -> BungeeProxy()
-            Platform.VELOCITY -> BungeeProxy()
+            Platform.VELOCITY -> VelocityProxy()
             Platform.AFYBROKER -> throw IllegalArgumentException("unsupported platform")
             Platform.APPLICATION -> throw IllegalArgumentException("unsupported platform")
         }
