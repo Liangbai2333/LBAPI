@@ -12,9 +12,11 @@ import site.liangbai.lbapi.serverbridge.packet.PluginPacket
 import site.liangbai.lbapi.serverbridge.packet.request.PostProcessPacket
 import site.liangbai.lbapi.serverbridge.packet.request.RegisterPacket
 import site.liangbai.lbapi.serverbridge.packet.server.AllowNextPacket
+import site.liangbai.lbapi.serverbridge.packet.server.RegisteredPacket
 import site.liangbai.lbapi.serverbridge.proxy.PlatformProxy
 import site.liangbai.lbapi.serverbridge.util.transToByteArray
 import site.liangbai.lbapi.serverbridge.util.transToPacket
+import site.liangbai.lbapi.serverbridge.util.withLock
 import taboolib.common.platform.Platform
 import taboolib.common.platform.PlatformSide
 import taboolib.common.platform.function.registerBungeeListener
@@ -37,6 +39,8 @@ class BungeeProxy : PlatformProxy {
 
     private val threadPool = Executors.newSingleThreadExecutor()
 
+    private val server by lazy { server<ProxyServer>() }
+
     override fun registerChannel(identity: String) {
         incoming = "$identity:proxy"
         outgoing = "$identity:server"
@@ -45,14 +49,17 @@ class BungeeProxy : PlatformProxy {
         server<ProxyServer>().registerChannel(outgoing)
 
         registerBungeeListener(PluginMessageEvent::class.java) {
-            try {
-                lock.lock()
+            lock.withLock {
                 if (it.tag == incoming) {
                     val packet = it.data.transToPacket<PluginPacket>()
                     if (packet is RegisterPacket) {
-                        val sender = it.sender.toServerInfo().name
-                        registeredServerName.add(sender)
-                        return@registerBungeeListener
+                        val serverInfo = it.sender.toServerInfo()
+                        val sender = serverInfo.name
+                        if (sender !in registeredServerName) {
+                            registeredServerName.add(sender)
+                            sendPrivatePacket(serverInfo, RegisteredPacket())
+                        }
+                        return@withLock
                     }
                     if (packet is PostProcessPacket) {
                         val sender = it.sender.toServerInfo().name
@@ -64,12 +71,10 @@ class BungeeProxy : PlatformProxy {
                             isAllowedToSend = true
                             canSend.signal()
                         }
-                        return@registerBungeeListener
+                        return@withLock
                     }
                     processPacket(packet)
                 }
-            } finally {
-                lock.unlock()
             }
         }
 
@@ -88,10 +93,9 @@ class BungeeProxy : PlatformProxy {
         }
     }
 
-    fun processPacket(packet: PluginPacket) {
+    private fun processPacket(packet: PluginPacket) {
         threadPool.submit {
-            try {
-                lock.lock()
+            lock.withLock {
                 while (!isAllowedToSend) {
                     canSend.await()
                 }
@@ -99,16 +103,18 @@ class BungeeProxy : PlatformProxy {
                 sendPacket(packet)
 
                 isAllowedToSend = false
-            } finally {
-                lock.unlock()
             }
         }
     }
 
     override fun sendPacket(packet: PluginPacket) {
         registeredServerName.forEach {
-            server<ProxyServer>().getServerInfo(it).sendData(outgoing, packet.transToByteArray())
+            server.getServerInfo(it).sendData(outgoing, packet.transToByteArray())
         }
+    }
+
+    private fun sendPrivatePacket(server: ServerInfo, packet: PluginPacket) {
+        server.sendData(outgoing, packet.transToByteArray())
     }
 
     private fun Connection.toServerInfo(): ServerInfo {

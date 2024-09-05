@@ -2,5 +2,4 @@ package site.liangbai.lbapi.serverbridge.packet.request
 
 import site.liangbai.lbapi.serverbridge.packet.PluginPacket
 
-class RegisterPacket : PluginPacket() {
-}
+class RegisterPacket : PluginPacket()

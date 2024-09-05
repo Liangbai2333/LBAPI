@@ -11,6 +11,19 @@ import taboolib.library.reflex.Reflex.Companion.unsafeInstance
 import taboolib.library.reflex.ReflexClass
 
 class BeanConverter<T : Bean> : IConverter<T> {
+    private val cachedClass = mutableMapOf<String, ReflexClass>()
+
+    private fun findClassCached(target: String): ReflexClass {
+        val ref: ReflexClass
+        if (target in cachedClass) {
+            ref = cachedClass[target]!!
+        } else {
+            ref = ReflexClass.of(Class.forName(target))
+            cachedClass[target] = ref
+        }
+        return ref
+    }
+
     override fun convertToElement(value: T): JsonElement {
         return convertToElementPrimitive(value, value.javaClass.name)
     }
@@ -19,7 +32,7 @@ class BeanConverter<T : Bean> : IConverter<T> {
         return JsonObject()
             .apply {
                 addProperty("\$primitive_class_type\$", target)
-                val ref = ReflexClass.of(Class.forName(target))
+                val ref: ReflexClass = findClassCached(target)
                 val superclass = ref.superclass
                 if (superclass != null && superclass.structure.owner != Any::class.java) {
                     add("\$superclass\$", convertToElementPrimitive(value, superclass.structure.owner.name))
@@ -38,10 +51,10 @@ class BeanConverter<T : Bean> : IConverter<T> {
             }
     }
 
-    private fun setObjWithClass(js: JsonObject, obj: Any, clz: Class<*>) {
+    private fun setObjWithClass(js: JsonObject, obj: Any, clz: ReflexClass) {
         if (js.has("\$superclass\$")) {
             val superJs = js["\$superclass\$"].asJsonObject
-            val superClz = Class.forName(superJs["\$primitive_class_type\$"]!!.asString) ?: throw ClassNotFoundException("Cannot find bean class: ${superJs["\$primitive_class_type\$"]!!.asString}")
+            val superClz = findClassCached(superJs["\$primitive_class_type\$"]!!.asString)
             superJs.remove("\$primitive_class_type\$")
             setObjWithClass(js["\$superclass\$"].asJsonObject, obj, superClz)
             js.remove("\$superclass\$")
@@ -57,7 +70,7 @@ class BeanConverter<T : Bean> : IConverter<T> {
                 } else if (primitive.isBoolean) {
                     obj.setProperty(name, primitive.asBoolean)
                 } else if (primitive.isNumber) {
-                    ReflexClass.of(clz).structure.fields.first { it.name == name }.also {
+                    clz.structure.fields.first { it.name == name }.also {
                         if (it.fieldType == Long::class.java) {
                             obj.setProperty(name, primitive.asLong)
                         } else if (it.fieldType == Double::class.java) {
@@ -83,8 +96,8 @@ class BeanConverter<T : Bean> : IConverter<T> {
     @Suppress("UNCHECKED_CAST")
     override fun convertFromString(data: JsonElement): T {
         val js = data.asJsonObject
-        val clz = Class.forName(js["\$primitive_class_type\$"]!!.asString) ?: throw ClassNotFoundException("Cannot find bean class: ${js["\$primitive_class_type\$"]!!.asString}")
-        val obj = clz.unsafeInstance()
+        val clz = findClassCached(js["\$primitive_class_type\$"]!!.asString)
+        val obj = clz.structure.owner.unsafeInstance()
 
         js.remove("\$primitive_class_type\$")
         setObjWithClass(js, obj, clz)

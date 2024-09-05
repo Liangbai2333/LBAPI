@@ -1,26 +1,25 @@
 package site.liangbai.lbapi.serverbridge.proxy.impl
 
-import kotlinx.coroutines.delay
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.event.player.PlayerJoinEvent
-import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.plugin.messaging.PluginMessageListener
 import site.liangbai.lbapi.serverbridge.BridgeRegistry
 import site.liangbai.lbapi.serverbridge.packet.PluginPacket
 import site.liangbai.lbapi.serverbridge.packet.request.PostProcessPacket
 import site.liangbai.lbapi.serverbridge.packet.request.RegisterPacket
 import site.liangbai.lbapi.serverbridge.packet.server.AllowNextPacket
+import site.liangbai.lbapi.serverbridge.packet.server.RegisteredPacket
 import site.liangbai.lbapi.serverbridge.proxy.PlatformProxy
 import site.liangbai.lbapi.serverbridge.util.transToByteArray
 import site.liangbai.lbapi.serverbridge.util.transToPacket
+import site.liangbai.lbapi.serverbridge.util.withLock
 import taboolib.common.platform.Platform
 import taboolib.common.platform.PlatformSide
 import taboolib.common.platform.event.EventPriority
 import taboolib.common.platform.function.registerBukkitListener
 import taboolib.common.platform.function.submit
 import taboolib.platform.BukkitPlugin
-import java.util.*
 import java.util.concurrent.Executors
 import java.util.concurrent.locks.ReentrantLock
 
@@ -36,8 +35,6 @@ class BukkitProxy : PlatformProxy, PluginMessageListener {
     private var initialized = false
     private var registered = false
 
-    private val uniqueId by lazy { UUID.randomUUID().toString() }
-
     private val threadPool = Executors.newSingleThreadExecutor()
 
     override fun registerChannel(identity: String) {
@@ -50,10 +47,7 @@ class BukkitProxy : PlatformProxy, PluginMessageListener {
         registered = true
         registerBukkitListener(PlayerJoinEvent::class.java, EventPriority.HIGHEST) {
             if (registered && !initialized) {
-                submit(delay = 20) {
-                    sendPrivatePacket(it.player, RegisterPacket())
-                }
-                initialized = true
+                tryRegisterToBungee(it.player)
             }
         }
     }
@@ -64,8 +58,7 @@ class BukkitProxy : PlatformProxy, PluginMessageListener {
         }
 
         threadPool.submit {
-            try {
-                lock.lock()
+            lock.withLock {
                 while (!isAllowedToSend) {
                     canSend.await()
                 }
@@ -73,8 +66,6 @@ class BukkitProxy : PlatformProxy, PluginMessageListener {
                 Bukkit.getOnlinePlayers().firstOrNull()?.sendPluginMessage(BukkitPlugin.getInstance(), outgoing, packet.transToByteArray())
 
                 isAllowedToSend = false
-            } finally {
-                lock.unlock()
             }
         }
     }
@@ -84,16 +75,34 @@ class BukkitProxy : PlatformProxy, PluginMessageListener {
         player.sendPluginMessage(BukkitPlugin.getInstance(), outgoing, packet.transToByteArray())
     }
 
+    private fun tryRegisterToBungee(player: Player) {
+        submit(delay = 1, period = 2) {
+            try {
+                if (!player.isOnline || initialized) {
+                    cancel()
+                } else {
+                    sendPrivatePacket(player, RegisterPacket())
+                }
+            } catch (_: Throwable) {
+                cancel()
+            }
+        }
+    }
+
     override fun onPluginMessageReceived(channel: String, p: Player?, data: ByteArray) {
         if (channel == incoming) {
-            lock.lock()
-            try {
+            lock.withLock {
                 val packet = data.transToPacket<PluginPacket>()
 
                 if (packet is AllowNextPacket) {
                     isAllowedToSend = true
                     canSend.signal()
-                    return
+                    return@withLock
+                }
+
+                if (packet is RegisteredPacket) {
+                    if (!initialized) initialized = true
+                    return@withLock
                 }
 
                 val cls = packet.javaClass
@@ -103,8 +112,6 @@ class BukkitProxy : PlatformProxy, PluginMessageListener {
                 if (Bukkit.getOnlinePlayers().isNotEmpty()) {
                     sendPrivatePacket(Bukkit.getOnlinePlayers().first(), PostProcessPacket())
                 }
-            } finally {
-                lock.unlock()
             }
         }
     }
