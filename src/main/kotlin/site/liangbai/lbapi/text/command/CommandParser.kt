@@ -6,6 +6,7 @@ import site.liangbai.lbapi.text.translate.TransType
 import site.liangbai.lbapi.text.translate.Translator
 import site.liangbai.lbapi.text.translate.Translator.applyTranslate
 import taboolib.common.platform.function.console
+import taboolib.expansion.dispatchCommandAsOp
 import taboolib.module.chat.colored
 
 object CommandParser {
@@ -23,14 +24,7 @@ object CommandParser {
                 true
             }
             "op" -> {
-                val op = player.isOp
-                if (!op) {
-                    player.isOp = true
-                }
-                player.performCommand(command)
-                if (!op) {
-                    player.isOp = false
-                }
+                player.dispatchCommandAsOp(command)
                 true
             }
             "console" -> {

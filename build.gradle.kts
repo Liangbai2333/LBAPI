@@ -13,7 +13,7 @@ taboolib {
     env {
         // 安装模块
         install(UNIVERSAL, DATABASE, NMS_UTIL, UI, CHAT)
-        install(EXPANSION_PLAYER_DATABASE)
+        install(EXPANSION_PLAYER_FAKE_OP)
         install(BUKKIT_ALL, VELOCITY)
     }
     version {
