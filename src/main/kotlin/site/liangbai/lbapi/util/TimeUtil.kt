@@ -1,5 +1,6 @@
 package site.liangbai.lbapi.util
 
+import site.liangbai.lbapi.storage.converter.impl.bean.Bean
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -56,4 +57,31 @@ fun formatTime(pattern: String): String {
     val formatter: DateTimeFormatter = timeFormatters[pattern] ?: DateTimeFormatter.ofPattern(pattern).also { timeFormatters[pattern] = it }
 
     return formatter.format(LocalDateTime.now())
+}
+
+fun withCountdown(duration: Long) = CountdownTimer(System.currentTimeMillis() + duration)
+
+class CountdownTimer(private val endTime: Long, private val lengthDefault: Int = 2, private val padStartDefault: Char = '0') : Bean {
+    fun getRemainingTime() = endTime - System.currentTimeMillis()
+
+    fun getRemainingSeconds() = (getRemainingTime() / 1000) % 60
+    fun getRemainingMinutes() = (getRemainingTime() / (1000 * 60)) % 60
+    fun getRemainingHours() = (getRemainingTime() / (1000 * 60 * 60)) % 24
+    fun getRemainingDays() = (getRemainingTime() / (1000 * 60 * 60 * 24))
+
+    fun getFormattedDays(length: Int = lengthDefault, padStart: Char = padStartDefault): String {
+        return getRemainingDays().toString().padStart(length, padStart)
+    }
+
+    fun getFormattedHours(length: Int = lengthDefault, padStart: Char = padStartDefault): String {
+        return getRemainingHours().toString().padStart(length, padStart)
+    }
+
+    fun getFormattedMinutes(length: Int = lengthDefault, padStart: Char = padStartDefault): String {
+        return getRemainingMinutes().toString().padStart(length, padStart)
+    }
+
+    fun getFormattedSeconds(length: Int = lengthDefault, padStart: Char = padStartDefault): String {
+        return getRemainingSeconds().toString().padStart(length, padStart)
+    }
 }
