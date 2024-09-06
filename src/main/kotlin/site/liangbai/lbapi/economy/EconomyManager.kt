@@ -2,15 +2,15 @@ package site.liangbai.lbapi.economy
 
 import com.mc9y.nyeconomy.Main
 import org.bukkit.Bukkit
-import org.bukkit.entity.Player
 import site.liangbai.lbapi.economy.impl.*
 
+// 暂时, 即将全面重构
 object EconomyManager {
-    private val economyMap = mutableMapOf<EconomyProvider<*>, Economy>()
-    private val economyNameMap = mutableMapOf<String, EconomyProvider<*>>()
-    private var channelMap = mutableMapOf<String, MutableList<EconomyProvider<*>>>()
+    private val economyMap = mutableMapOf<EconomyProvider<*, *>, Economy>()
+    private val economyNameMap = mutableMapOf<String, EconomyProvider<*, *>>()
+    private var channelMap = mutableMapOf<String, MutableList<EconomyProvider<*, *>>>()
 
-    private var channelValueMap = mutableMapOf<String, MutableMap<EconomyProvider<*>, Any>>()
+    private var channelValueMap = mutableMapOf<String, MutableMap<EconomyProvider<*, *>, Any>>()
 
     fun initialize() {
         if (Bukkit.getPluginManager().getPlugin("Vault") != null) {
@@ -29,7 +29,7 @@ object EconomyManager {
         register(economyOf("contains_item"), ContainsItemStackProvider())
     }
 
-    fun register(economy: Economy, provider: EconomyProvider<*>) {
+    fun register(economy: Economy, provider: EconomyProvider<*, *>) {
         economyMap[provider] = economy
         economyNameMap[economy.name] = provider
     }
@@ -39,8 +39,8 @@ object EconomyManager {
     }
 
     @Suppress("UNCHECKED_CAST")
-    fun <T> getEconomyByName(name: String): EconomyProvider<T> {
-        return economyNameMap[name] as? EconomyProvider<T> ?: throw NullPointerException("Economy not found")
+    fun <PLAYER, T> getEconomyByName(name: String): EconomyProvider<PLAYER, T> {
+        return economyNameMap[name] as? EconomyProvider<PLAYER, T> ?: throw NullPointerException("Economy not found")
     }
 
     fun registerChannel(channel: String, vararg economies: String) {
@@ -48,7 +48,7 @@ object EconomyManager {
 
         for (economy in economies) {
             if (economyNameMap.containsKey(economy)) {
-                channelMap[channel]!!.add(getEconomyByName<Any>(economy))
+                channelMap[channel]!!.add(getEconomyByName<Any, Any>(economy))
             }
         }
     }
@@ -60,7 +60,7 @@ object EconomyManager {
 
         for (economyWithValue in economyWithValues) {
             if (economyNameMap.containsKey(economyWithValue.first)) {
-                channelValueMap[channel]!![getEconomyByName<Any>(economyWithValue.first)] = economyWithValue.second
+                channelValueMap[channel]!![getEconomyByName<Any, Any>(economyWithValue.first)] = economyWithValue.second
             }
         }
     }
@@ -72,12 +72,12 @@ object EconomyManager {
 
     // Return not enough
     @Suppress("UNCHECKED_CAST")
-    fun <T> checkWithChannel(channel: String, checker: (EconomyProvider<T>) -> Boolean): Economy? {
+    fun <PLAYER, T> checkWithChannel(channel: String, checker: (EconomyProvider<PLAYER, T>) -> Boolean): Economy? {
         var economy: Economy? = null
         var b = true
         channelMap[channel]!!.forEach {
             if (!b) return@forEach
-            if (!checker(it as EconomyProvider<T>)) {
+            if (!checker(it as EconomyProvider<PLAYER, T>)) {
                 economy = economyMap[it]
                 b = false
             }
@@ -86,30 +86,43 @@ object EconomyManager {
         return economy
     }
 
-    fun checkChannelDefaultValues(channel: String, player: Player): Economy? {
+    fun checkChannelDefaultValues(channel: String, player: String): Economy? {
         return checkWithChannel(channel) {
-            it.checkBalance(player, channelValueMap[channel]!![it]!!)
+            it.checkBalance(it.adaptPlayer(player), channelValueMap[channel]!![it]!!)
         }
     }
 
     @Suppress("UNCHECKED_CAST")
-    fun <T> withChannel(channel: String, func: (EconomyProvider<T>) -> Unit) {
+    fun <PLAYER, T> withChannel(channel: String, func: (EconomyProvider<PLAYER, T>) -> Unit) {
         channelMap[channel]!!.forEach {
-            func(it as EconomyProvider<T>)
+            func(it as EconomyProvider<PLAYER, T>)
         }
     }
 
-    fun withdrawDefaultValues(channel: String, player: Player) {
+    fun withdrawDefaultValues(channel: String, player: String) {
         withChannel(channel) {
-            it.withdraw(player, channelValueMap[channel]!![it]!!)
+            it.withdraw(it.adaptPlayer(player), channelValueMap[channel]!![it]!!)
         }
     }
 
-    fun getChannelMap(channel: String): MutableList<EconomyProvider<*>>? {
+    fun getChannelMap(channel: String): MutableList<EconomyProvider<*, *>>? {
         return channelMap[channel]
     }
 
-    fun getChannelMapWithDefaultValues(channel: String): MutableMap<EconomyProvider<*>, Any>? {
+    fun getChannelMapWithDefaultValues(channel: String): MutableMap<EconomyProvider<*, *>, Any>? {
         return channelValueMap[channel]
+    }
+
+    fun EconomyProvider<*, *>.adaptPlayer(player: String): Any {
+        return when (this) {
+            is VaultProvider -> Bukkit.getOfflinePlayer(player)
+            is PlayerPointsProvider -> player
+            is PlaceholderProvider -> Bukkit.getOfflinePlayer(player)
+            is NyEProvider -> player
+            is ItemStackProvider -> Bukkit.getPlayerExact(player)
+            is MultiItemStackProvider -> Bukkit.getPlayerExact(player)
+            is ContainsItemStackProvider -> Bukkit.getPlayerExact(player)
+            else -> player
+        }
     }
 }

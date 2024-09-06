@@ -8,7 +8,7 @@ import site.liangbai.lbapi.util.hasLore
 import site.liangbai.lbapi.util.hasName
 import taboolib.platform.util.isAir
 
-class ContainsItemStackProvider : EconomyProvider<ItemInfo> {
+class ContainsItemStackProvider : EconomyProvider<Player, ItemInfo> {
     override fun checkBalance(player: Player, balance: ItemInfo): Boolean {
         return player.getItemStackByItemInfo(balance).map { it.value.amount }.sum() >= balance.amount
     }

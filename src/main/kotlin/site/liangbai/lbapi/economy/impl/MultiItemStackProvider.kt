@@ -6,7 +6,7 @@ import site.liangbai.lbapi.economy.EconomyProvider
 import site.liangbai.lbapi.util.addItemNatural
 import site.liangbai.lbapi.util.reduceItem
 
-class MultiItemStackProvider : EconomyProvider<List<ItemStack>> {
+class MultiItemStackProvider : EconomyProvider<Player, List<ItemStack>> {
     override fun checkBalance(player: Player, balance: List<ItemStack>): Boolean {
         return balance.all { player.inventory.containsAtLeast(it, it.amount) }
     }

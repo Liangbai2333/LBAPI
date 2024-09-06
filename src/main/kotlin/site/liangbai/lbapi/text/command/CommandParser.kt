@@ -10,6 +10,22 @@ import taboolib.expansion.dispatchCommandAsOp
 import taboolib.module.chat.colored
 
 object CommandParser {
+    fun executeOffline(commandLine: String): Boolean {
+        val type = commandLine.substringBefore(":").trim().lowercase()
+        val command = commandLine.substringAfter(":").trimStart().colored()
+        return when (type) {
+            "console" -> {
+                console().performCommand(command)
+                true
+            }
+            "broadcast" -> {
+                Bukkit.broadcastMessage(command)
+                true
+            }
+            else -> false
+        }
+    }
+
     fun execute(text: String, player: Player, obj: Any? = null, defaultTranslators: Boolean = true, vararg translators: TransType): Boolean {
         val type = text.substringBefore(":").trim().lowercase()
         val trans = mutableListOf<TransType>()

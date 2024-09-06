@@ -18,6 +18,18 @@ fun weightedRandomChoice(weights: List<Int>): Int {
     throw IllegalArgumentException("Weights must be non-empty and non-negative.")
 }
 
+fun <T> randomPickFromList(list: List<T>, number: Int): List<T> {
+    require(number >= 0 && number <= list.size) { "Invalid number of elements to pick." }
+    val result = mutableListOf<T>()
+    val tempList = list.toMutableList()
+    for (i in 0 until number) {
+        if (tempList.isEmpty()) break
+        val randomIndex = Random.nextInt(tempList.size)
+        result.add(tempList.removeAt(randomIndex))
+    }
+    return result
+}
+
 fun checkProbability(probability: Double, percent: Boolean = false): Boolean {
     require(probability in 0.0..100.0) { "Probability must be between 0 and 100" }
     val chance: Double = if (percent) {

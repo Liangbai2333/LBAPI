@@ -5,26 +5,26 @@ import org.bukkit.entity.Player
 import site.liangbai.lbapi.economy.EconomyProvider
 
 // Map<String, NyeProvider> 判断Nye类型.
-class NyEProvider(val type: String): EconomyProvider<Double> {
+class NyEProvider(val type: String): EconomyProvider<String, Double> {
     private val api by lazy {
         NyEconomyAPI.getInstance()
     }
 
-    override fun checkBalance(player: Player, balance: Double): Boolean {
+    override fun checkBalance(player: String, balance: Double): Boolean {
         return getBalance(player) >= balance
     }
 
-    override fun getBalance(player: Player): Double {
-        return api.getBalance(type, player.name).toDouble()
+    override fun getBalance(player: String): Double {
+        return api.getBalance(type, player).toDouble()
     }
 
-    override fun withdraw(player: Player, balance: Double): Boolean {
-        api.withdraw(type, player.name, balance.toInt())
+    override fun withdraw(player: String, balance: Double): Boolean {
+        api.withdraw(type, player, balance.toInt())
         return true
     }
 
-    override fun deposit(player: Player, balance: Double): Boolean {
-        api.deposit(type, player.name, balance.toInt())
+    override fun deposit(player: String, balance: Double): Boolean {
+        api.deposit(type, player, balance.toInt())
         return true
     }
 }
