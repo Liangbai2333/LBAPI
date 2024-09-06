@@ -1,5 +1,6 @@
 package site.liangbai.lbapi.util
 
+import kotlin.math.floor
 import kotlin.math.pow
 
 class ExpressionParser(private val input: String) {
@@ -98,4 +99,12 @@ class ExpressionParser(private val input: String) {
 
 fun String.calculate(): Double {
     return ExpressionParser(this).parse()
+}
+
+fun Double.truncateWithDecimalPlaces(decimalPlaces: Int): Double {
+    return floor(this * 10.0.pow(decimalPlaces)) / 10.0.pow(decimalPlaces)
+}
+
+fun Double.getFormatString(decimalPlaces: Int): String {
+    return String.format("%." + decimalPlaces + "f", this)
 }

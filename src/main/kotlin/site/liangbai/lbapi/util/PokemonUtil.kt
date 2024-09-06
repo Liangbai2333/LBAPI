@@ -5,11 +5,8 @@ import com.pixelmonmod.pixelmon.entities.pixelmon.stats.EVStore
 import com.pixelmonmod.pixelmon.items.ItemPixelmonSprite
 import org.bukkit.inventory.ItemStack
 import site.liangbai.lbapi.config.mapper.gui.api.GuiIconInfo
-import site.liangbai.lbapi.nms.NMS
 import site.liangbai.lbapi.text.translate.TransType
 import taboolib.module.nms.NMSItem
-import kotlin.math.floor
-import kotlin.math.pow
 
 fun GuiIconInfo.withPokemonTranslator(): GuiIconInfo {
     return apply { withTranslator(TransType.PIXELMON) }
@@ -30,10 +27,10 @@ fun Pokemon.setLevelOriginal(level: Int) {
 
 fun EVStore.getPercentage(decimalPlaces: Int): Double {
     val percentage = total.toDouble() / 510.0 * 100.0
-    return floor(percentage * 10.0.pow(decimalPlaces.toDouble())) / 10.0.pow(decimalPlaces.toDouble());
+    return percentage.truncateWithDecimalPlaces(decimalPlaces)
 }
 
 fun EVStore.getPercentageString(decimalPlaces: Int): String {
-    return String.format("%." + decimalPlaces + "f", getPercentage(decimalPlaces))
+    return getPercentage(decimalPlaces).getFormatString(decimalPlaces)
 }
 

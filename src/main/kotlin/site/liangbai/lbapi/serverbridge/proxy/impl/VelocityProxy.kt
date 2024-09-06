@@ -8,7 +8,6 @@ import com.velocitypowered.api.proxy.ServerConnection
 import com.velocitypowered.api.proxy.messages.ChannelMessageSource
 import com.velocitypowered.api.proxy.messages.MinecraftChannelIdentifier
 import com.velocitypowered.api.proxy.server.RegisteredServer
-import net.md_5.bungee.api.connection.Server
 import site.liangbai.lbapi.serverbridge.packet.PluginPacket
 import site.liangbai.lbapi.serverbridge.packet.request.PostProcessPacket
 import site.liangbai.lbapi.serverbridge.packet.request.RegisterPacket
@@ -20,9 +19,7 @@ import site.liangbai.lbapi.serverbridge.util.transToPacket
 import site.liangbai.lbapi.serverbridge.util.withLock
 import taboolib.common.platform.Platform
 import taboolib.common.platform.PlatformSide
-import taboolib.common.platform.function.registerBungeeListener
 import taboolib.common.platform.function.registerVelocityListener
-import taboolib.common.platform.function.server
 import taboolib.platform.VelocityPlugin
 import java.util.concurrent.Executors
 import java.util.concurrent.locks.ReentrantLock
@@ -83,14 +80,14 @@ class VelocityProxy : PlatformProxy {
             }
         }
 
-        registerBungeeListener(KickedFromServerEvent::class.java) {
+        registerVelocityListener(KickedFromServerEvent::class.java) {
             val server = it.server
             if (server.serverInfo.name in registeredServerName && server.playersConnected.isEmpty()) {
                 emptyServerCount += 1
             }
         }
 
-        registerBungeeListener(ServerConnectedEvent::class.java) {
+        registerVelocityListener(ServerConnectedEvent::class.java) {
             val server = it.server
             if (server.serverInfo.name in registeredServerName && server.playersConnected.isEmpty()) {
                 emptyServerCount -= 1
