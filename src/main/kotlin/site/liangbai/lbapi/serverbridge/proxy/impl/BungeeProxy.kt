@@ -69,7 +69,7 @@ class BungeeProxy : PlatformProxy {
                             sendPacket(AllowNextPacket())
                             postCache.clear()
                             isAllowedToSend = true
-                            canSend.signal()
+                            canSend.signalAll()
                         }
                         return@withLock
                     }

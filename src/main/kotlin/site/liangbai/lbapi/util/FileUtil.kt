@@ -23,6 +23,7 @@ fun releaseResourceFileIfFolderEmpty (source: String, target: String = source, r
     }
 }
 
+// error
 fun releaseFolderResourceFiles(source: String, target: String = source, replace: Boolean = false) {
     val parent = File(getDataFolder(), target)
     if (parent.exists() && !replace) {
@@ -34,7 +35,9 @@ fun releaseFolderResourceFiles(source: String, target: String = source, replace:
 
     if (parent.listFiles()!!.isEmpty()) {
         getResources(source)?.forEach { (fileName, input) ->
-            newFile(File(parent, fileName)).writeBytes(input.readBytes())
+            input.use {
+                newFile(File(parent, fileName)).writeBytes(input.readBytes())
+            }
         } ?: error("resource not found: $source")
     }
 }
@@ -51,7 +54,7 @@ fun getResources(path: String): Map<String, InputStream>? {
     val out = HashMap<String, InputStream>()
     try {
         val classLoader = LBAPI.javaClass.classLoader
-        val urls = classLoader.getResources(path)
+        val urls = classLoader.getResources("$path/")
         while (urls.hasMoreElements()) {
             val url = urls.nextElement()
             out[getFileNameFromAbsolutePath(url.path)] = url.openStream()

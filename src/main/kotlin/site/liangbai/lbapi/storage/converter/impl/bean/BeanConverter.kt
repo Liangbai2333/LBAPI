@@ -66,7 +66,13 @@ class BeanConverter<T : Bean> : IConverter<T> {
             if (property.isJsonPrimitive) {
                 val primitive = property.asJsonPrimitive
                 if (primitive.isString) {
-                    obj.setProperty(name, primitive.asString)
+                    clz.structure.fields.first { it.name == name }.also {
+                        if (it.fieldType == Char::class.java) {
+                            obj.setProperty(name, primitive.asString[0])
+                        } else {
+                            obj.setProperty(name, primitive.asString)
+                        }
+                    }
                 } else if (primitive.isBoolean) {
                     obj.setProperty(name, primitive.asBoolean)
                 } else if (primitive.isNumber) {

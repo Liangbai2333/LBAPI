@@ -10,15 +10,21 @@ import kotlin.reflect.KProperty
 class NullableConfigNode<A, B>(private var node: String = "", private val mapper: ConfigMapper<A, B>? = null) : ReadWriteProperty<Any?, B?>  {
     private var cached: B? = null
 
+    private var needToChange = false
+
+    fun notifyChanged() {
+        needToChange = true
+    }
+
     override fun getValue(thisRef: Any?, property: KProperty<*>): B? {
         if (thisRef == null) throw IllegalArgumentException("bind access")
 
         if (cached != null) {
-            if (thisRef in ConfigManager.flushCache) {
+            if (needToChange) {
                 cached = null
-                ConfigManager.flushCache.remove(thisRef)
+                needToChange = false
             } else {
-                return cached
+                return cached!!
             }
         }
         val n = node.ifEmpty { property.name }

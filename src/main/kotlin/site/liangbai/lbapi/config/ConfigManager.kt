@@ -1,12 +1,14 @@
 package site.liangbai.lbapi.config
 
+import site.liangbai.lbapi.config.delegate.ConfigNode
+import site.liangbai.lbapi.config.delegate.NullableConfigNode
 import taboolib.library.configuration.ConfigurationSection
+import taboolib.library.reflex.ReflexClass
 import taboolib.module.configuration.ConfigFile
 
 object ConfigManager {
     val binds = mutableMapOf<Any, ConfigFile>()
     val bindsSection = mutableMapOf<Any, ConfigurationSection>()
-    val flushCache = mutableListOf<Any>()
 
     fun Any.bindTo(configFile: ConfigFile, section: String = "") {
         binds[this] = configFile
@@ -20,7 +22,15 @@ object ConfigManager {
         if (this in bindsSection) {
             bindsSection[this] = binds[this]!!.getConfigurationSection(bindsSection[this]!!.name)!!
         }
-        flushCache.add(this)
+        ReflexClass.of(this::class.java).structure.fields.forEach {
+            val fieldObj = it.get(this)
+            if (fieldObj is ConfigNode<*, *>) {
+                fieldObj.notifyChanged()
+            }
+            if (fieldObj is NullableConfigNode<*, *>) {
+                fieldObj.notifyChanged()
+            }
+        }
     }
 
     fun getBind(obj: Any): ConfigurationSection {

@@ -96,7 +96,7 @@ class BukkitProxy : PlatformProxy, PluginMessageListener {
 
                 if (packet is AllowNextPacket) {
                     isAllowedToSend = true
-                    canSend.signal()
+                    canSend.signalAll()
                     return@withLock
                 }
 
@@ -106,11 +106,15 @@ class BukkitProxy : PlatformProxy, PluginMessageListener {
                 }
 
                 val cls = packet.javaClass
-                BridgeRegistry.getProcessors(cls)
-                    .forEach { it.func(packet) }
-
-                if (Bukkit.getOnlinePlayers().isNotEmpty()) {
-                    sendPrivatePacket(Bukkit.getOnlinePlayers().first(), PostProcessPacket())
+                try {
+                    BridgeRegistry.getProcessors(cls)
+                        .forEach { it.func(packet) }
+                } catch (t: Throwable) {
+                    t.printStackTrace()
+                } finally {
+                    if (Bukkit.getOnlinePlayers().isNotEmpty()) {
+                        sendPrivatePacket(Bukkit.getOnlinePlayers().first(), PostProcessPacket())
+                    }
                 }
             }
         }
