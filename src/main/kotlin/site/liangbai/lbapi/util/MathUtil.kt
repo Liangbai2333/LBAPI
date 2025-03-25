@@ -98,7 +98,18 @@ class ExpressionParser(private val input: String) {
 }
 
 fun String.calculate(): Double {
-    return ExpressionParser(this).parse()
+    return ExpressionParser(this.trim()).parse()
+}
+
+// 非贪婪模式
+val EXPRESSION_REGEX = "\\{\\{(.*?)}}".toRegex()
+
+fun String.withCalculateExpression(toInt: Boolean = true): String {
+    return this.replace(EXPRESSION_REGEX) { matchResult ->
+        val expression = matchResult.groups[1]!!.value
+
+        if (toInt) expression.calculate().toInt().toString() else expression.calculate().toString()
+    }
 }
 
 fun Double.truncateWithDecimalPlaces(decimalPlaces: Int): Double {

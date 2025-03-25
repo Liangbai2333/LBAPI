@@ -1,8 +1,7 @@
-package site.liangbai.lbapi.config.mapper.gui
+package site.liangbai.lbapi.config.mapper.type
 
 import org.bukkit.Material
 import site.liangbai.lbapi.config.ConfigMapper
-import site.liangbai.lbapi.config.mapper.gui.api.GuiIconInfo
 import taboolib.library.configuration.ConfigurationSection
 import taboolib.library.xseries.XMaterial
 

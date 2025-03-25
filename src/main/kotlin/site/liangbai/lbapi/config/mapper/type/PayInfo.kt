@@ -1,4 +1,4 @@
-package site.liangbai.lbapi.config.mapper.economy.api
+package site.liangbai.lbapi.config.mapper.type
 
 import site.liangbai.lbapi.economy.EconomyManager
 

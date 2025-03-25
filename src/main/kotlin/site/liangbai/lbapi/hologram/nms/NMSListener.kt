@@ -4,6 +4,7 @@ import org.bukkit.Bukkit
 import site.liangbai.lbapi.hologram.Hologram
 import site.liangbai.lbapi.hologram.event.HologramInteractEvent
 import taboolib.common.platform.event.SubscribeEvent
+import taboolib.module.nms.MinecraftVersion
 import taboolib.module.nms.PacketReceiveEvent
 
 /**
@@ -11,12 +12,13 @@ import taboolib.module.nms.PacketReceiveEvent
  * @date 2021/2/10 11:27
  */
 object NMSListener {
+    private val version by lazy { MinecraftVersion.versionId }
 
     @SubscribeEvent
     fun useEntity(event: PacketReceiveEvent) {
         val packet = event.packet
         if (packet.name == "PacketPlayInUseEntity") {
-            val entityId = packet.read<Int>("a")!!.also { if (it < 1197897763) return }
+            val entityId = packet.read<Int>(if (version >= 12100) "b" else "a")!!.also { if (it < 1197897763) return }
             val hologram =
                 Hologram.findHologram { it -> it.components.any { it.entityId == entityId } } ?: return
 

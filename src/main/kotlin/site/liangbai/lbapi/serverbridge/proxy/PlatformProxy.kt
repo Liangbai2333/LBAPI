@@ -5,5 +5,5 @@ import site.liangbai.lbapi.serverbridge.packet.PluginPacket
 interface PlatformProxy {
     fun registerChannel(identity: String)
 
-    fun sendPacket(packet: PluginPacket)
+    fun sendPackets(packets: List<PluginPacket>)
 }

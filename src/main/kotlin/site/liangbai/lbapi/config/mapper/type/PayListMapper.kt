@@ -1,7 +1,6 @@
-package site.liangbai.lbapi.config.mapper.economy
+package site.liangbai.lbapi.config.mapper.type
 
 import site.liangbai.lbapi.config.ConfigMapper
-import site.liangbai.lbapi.config.mapper.economy.api.PayInfo
 import site.liangbai.lbapi.economy.parser.EconomyParser
 
 object PayListMapper : ConfigMapper<List<String>, List<PayInfo>> {

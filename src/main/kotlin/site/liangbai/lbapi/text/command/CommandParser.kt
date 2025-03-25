@@ -33,7 +33,10 @@ object CommandParser {
             trans.addAll(Translator.getDefaultTransTypes())
         }
         trans.addAll(translators)
-        val command = trans.applyTranslate(text.substringAfter(":").trimStart(), obj, player).colored()
+        val command = trans.applyTranslate(
+            text.substringAfter(":").trimStart()
+            , obj, player
+        ).colored()
         return when (type) {
             "command" -> {
                 player.performCommand(command)

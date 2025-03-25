@@ -34,7 +34,7 @@ class BeanConverter<T : Bean> : IConverter<T> {
                 addProperty("\$primitive_class_type\$", target)
                 val ref: ReflexClass = findClassCached(target)
                 val superclass = ref.superclass
-                if (superclass != null && superclass.structure.owner != Any::class.java) {
+                if (superclass != null && superclass.structure.owner.instance != Any::class.java) {
                     add("\$superclass\$", convertToElementPrimitive(value, superclass.structure.owner.name))
                 }
                 ref.structure
@@ -103,8 +103,7 @@ class BeanConverter<T : Bean> : IConverter<T> {
     override fun convertFromString(data: JsonElement): T {
         val js = data.asJsonObject
         val clz = findClassCached(js["\$primitive_class_type\$"]!!.asString)
-        val obj = clz.structure.owner.unsafeInstance()
-
+        val obj = clz.structure.owner.instance!!.unsafeInstance()
         js.remove("\$primitive_class_type\$")
         setObjWithClass(js, obj, clz)
         return obj as T

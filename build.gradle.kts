@@ -4,7 +4,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     java
     `maven-publish`
-    id("io.izzel.taboolib") version "2.0.11"
+    id("io.izzel.taboolib") version "2.0.22"
     id("org.jetbrains.kotlin.jvm") version "1.8.22"
 }
 
@@ -12,17 +12,18 @@ taboolib {
     subproject = true
     env {
         // 安装模块
-        install(UNIVERSAL, DATABASE, NMS_UTIL, UI, CHAT)
-        install(EXPANSION_PLAYER_FAKE_OP)
-        install(BUKKIT_ALL, VELOCITY)
+        install(Basic, Bukkit, BukkitNMS, BukkitUI, BukkitNMSUtil, BukkitNMSItemTag, BukkitUtil, BukkitFakeOp)
+        install(MinecraftChat)
+        install(AlkaidRedis, Database)
     }
     version {
-        taboolib = "6.1.2-beta10"
+        taboolib = "6.2.2"
     }
 }
 
 repositories {
     mavenCentral()
+    mavenLocal()
     maven("https://raw.githubusercontent.com/Duckfox/maven-repository/master/")
     maven("https://jitpack.io")
     maven("https://oss.sonatype.org/content/repositories/snapshots")
@@ -30,6 +31,7 @@ repositories {
     maven("https://repo.extendedclip.com/content/repositories/placeholderapi/")
     maven("https://repo.codemc.io/repository/maven-public/")
     maven("https://repo.papermc.io/repository/maven-public/")
+    maven("https://repo.worldboot.net/releases")
 }
 
 dependencies {
@@ -42,6 +44,7 @@ dependencies {
     compileOnly("ink.ptms.core:v11200:11200")
     compileOnly("ink.ptms.core:v11600:11600")
     compileOnly("ink.ptms.core:v11300:11300")
+    compileOnly("ink.ptms.core:v12101:12101:universal")
     compileOnly("net.md-5:bungeecord-api:1.20-R0.1-SNAPSHOT")
     compileOnly("com.velocitypowered:velocity-api:3.1.1")
     compileOnly(kotlin("stdlib"))
@@ -67,14 +70,26 @@ configure<JavaPluginConvention> {
 publishing {
     repositories {
         mavenLocal()
+
+        maven {
+            name = "liangbai"
+
+            val snapshotsUrl = uri("https://repo.worldboot.net/snapshots")
+            val releasesUrl = uri("https://repo.worldboot.net/releases")
+            url = if (version.toString().endsWith("SNAPSHOT")) snapshotsUrl else releasesUrl
+            credentials {
+                username = System.getenv("NEXUS_USERNAME")
+                password = System.getenv("NEXUS_PASSWORD")
+            }
+        }
     }
     publications {
         create<MavenPublication>("maven") {
-            artifactId = "lbapi"
-            groupId = "site.liangbai"
+            group = project.group
+            artifactId = project.name.toLowerCase()
             version = project.version.toString()
 
-            artifact(File("build/libs/${rootProject.name}-${project.version}.jar"))
+            from(components["java"])
         }
     }
 }

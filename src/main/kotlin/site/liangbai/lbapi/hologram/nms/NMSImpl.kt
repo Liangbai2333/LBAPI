@@ -22,7 +22,7 @@ import java.util.*
  */
 class NMSImpl : NMS() {
 
-    private val version = MinecraftVersion.majorLegacy
+    private val version = MinecraftVersion.versionId
     private val emptyItemStack = CraftItemStack.asNMSCopy((ItemStack(Material.AIR)))
     private val indexs = arrayOf(
         // armorstand

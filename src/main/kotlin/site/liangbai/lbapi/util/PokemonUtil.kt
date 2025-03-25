@@ -4,9 +4,9 @@ import com.pixelmonmod.pixelmon.api.pokemon.Pokemon
 import com.pixelmonmod.pixelmon.entities.pixelmon.stats.EVStore
 import com.pixelmonmod.pixelmon.items.ItemPixelmonSprite
 import org.bukkit.inventory.ItemStack
-import site.liangbai.lbapi.config.mapper.gui.api.GuiIconInfo
+import site.liangbai.lbapi.config.mapper.type.GuiIconInfo
+import site.liangbai.lbapi.nms.NMS
 import site.liangbai.lbapi.text.translate.TransType
-import taboolib.module.nms.NMSItem
 
 fun GuiIconInfo.withPokemonTranslator(): GuiIconInfo {
     return apply { withTranslator(TransType.PIXELMON) }
@@ -17,7 +17,7 @@ fun GuiIconInfo.withPokemonItem(pokemon: Pokemon): GuiIconInfo {
 }
 
 fun Pokemon.getPhotoItem(): ItemStack {
-    return NMSItem.asBukkitCopy(ItemPixelmonSprite.getPhoto(this))
+    return NMS.INSTANCE.itemAsBukkitCopy(ItemPixelmonSprite.getPhoto(this))
 }
 
 fun Pokemon.setLevelOriginal(level: Int) {

@@ -1,4 +1,4 @@
-package site.liangbai.lbapi.config.mapper.gui.api
+package site.liangbai.lbapi.config.mapper.type
 
 import org.bukkit.Material
 import org.bukkit.entity.Player
